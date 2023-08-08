@@ -4,6 +4,7 @@
 #include "map.hpp"
 #include "characters.hpp"
 #include "game.hpp"
+#include "movement.hpp"
 
 const int screenWidth = 1280;
 const int screenHeight = 780;
