@@ -2,7 +2,7 @@
 
 int main(void)
 {
-    const int screenWidth = 1281;
+    const int screenWidth = 1280;
     const int screenHeight = 780;
 
     //initialling the window
