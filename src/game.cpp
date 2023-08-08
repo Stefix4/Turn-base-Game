@@ -1,11 +1,16 @@
 #include <raylib.h>
 
 #include "functions.hpp"
+#include "map.hpp"
+#include "characters.hpp"
+#include "game.hpp"
+
+const int screenWidth = 1280;
+const int screenHeight = 780;
 
 int main(void)
 {
-    const int screenWidth = 1280;
-    const int screenHeight = 780;
+
 
     //initialling the window
     InitWindow(screenWidth,screenHeight, "Turn-base-Game");
@@ -20,7 +25,9 @@ int main(void)
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        toggle_fullscreen();
+        toggleFullscreen();
+        DrawChessBoard();
+        Char();
         ClearBackground(WHITE);
         EndDrawing();
     }

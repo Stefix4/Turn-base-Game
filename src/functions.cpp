@@ -3,7 +3,7 @@
 #include "functions.hpp"
 
 
-void toggle_fullscreen(){
+void toggleFullscreen(){
     if(IsKeyPressed(KEY_F11))
         ToggleFullscreen();
 }
