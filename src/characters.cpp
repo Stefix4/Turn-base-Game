@@ -66,4 +66,4 @@ Monster enemy;
 
 void Char(int x_cellSize,int y_cellSize){
 Hiro.create(4,4,x_cellSize,y_cellSize);
-}
+}//test
