@@ -3,8 +3,7 @@
 #include "characters.hpp"
 #include "map.hpp"
 #include "game.hpp"
-
-int x,y;
+#include "movement.hpp"
 
 struct Character
 { 
@@ -64,6 +63,6 @@ struct Monster :Character{
 Hero Hiro;
 Monster enemy;
 
-void Char(int x_cellSize,int y_cellSize){
-Hiro.create(4,4,x_cellSize,y_cellSize);
+void Char(int x,int y,int x_cellSize,int y_cellSize){
+Hiro.create(x,y,x_cellSize,y_cellSize);
 }
