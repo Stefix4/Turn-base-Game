@@ -63,6 +63,6 @@ struct Monster :Character{
 Hero Hiro;
 Monster enemy;
 
-void Char(int x,int y,int x_cellSize,int y_cellSize){
+void Char(int x_cellSize,int y_cellSize){
 Hiro.create(x,y,x_cellSize,y_cellSize);
 }
