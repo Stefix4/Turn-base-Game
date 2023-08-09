@@ -2,20 +2,33 @@
 
 #include "movement.hpp"
 #include "characters.hpp"
+#include "map.hpp"
 
-// const float playerSpeed = 200.0f;
+int x=4, y=4;
 
-//  void movement() {
-//     if (IsKeyDown(KEY_W)) {
-//         coords.y -= playerSpeed * GetFrameTime();
-//         }
-//     if (IsKeyDown(KEY_S)) {
-//         coords.y += playerSpeed * GetFrameTime();
-//         }
-//     if (IsKeyDown(KEY_D)) {
-//         coords.x += playerSpeed * GetFrameTime();
-//         }
-//     if (IsKeyDown(KEY_A)) {
-//         coords.x -= playerSpeed * GetFrameTime();
-//         }
-//   }
+struct move{
+    int up;
+    int down;
+    int left;
+    int right;
+};
+move space;
+
+ void movement() {
+    space.up = 1;
+    space.down = mapSize;
+    space.left = 1;
+    space.right = mapSize;
+    if(y > space.up)
+        if (IsKeyPressed(KEY_W))
+            y -= 1;
+    if(y < space.down)
+        if(IsKeyPressed(KEY_S)) 
+            y += 1;
+    if(x < space.right)
+        if(IsKeyPressed(KEY_D))
+            x += 1;
+    if(x > space.left)
+        if (IsKeyPressed(KEY_A)) 
+            x -= 1;
+    }
