@@ -1,22 +1,35 @@
 #include <raylib.h>
 
-#include "functions.hpp"
 #include "map.hpp"
 #include "characters.hpp"
 #include "game.hpp"
 #include "movement.hpp"
 
-const int screenWidth = 1280;
-const int screenHeight = 780;
+int screenWidth = 1280;
+int screenHeight = 780;
+
+//fullscreen
+void toggleFullscreen(){
+    if(IsKeyPressed(KEY_F11)){
+        ToggleFullscreen();
+    }
+    if(IsWindowFullscreen()){
+        screenWidth = GetRenderWidth();
+        screenHeight = GetRenderHeight();
+    }
+    else{
+        screenWidth = 1280;
+        screenHeight = 780;
+    }
+}
 
 int main(void)
 {
 
-
     //initialling the window
     InitWindow(screenWidth,screenHeight, "Turn-base-Game");
     SetTargetFPS(144);
-    SetWindowMinSize(screenWidth,screenHeight);
+    //SetWindowMinSize(screenWidth,screenHeight);
     
     //declaring images/textures
 
@@ -24,11 +37,12 @@ int main(void)
 
      //game loop
     while (!WindowShouldClose())
-    {
+    {   
+
         BeginDrawing();
         toggleFullscreen();
         DrawChessBoard();
-        Char();
+        Char(x_cellSize,y_cellSize);
         ClearBackground(WHITE);
         EndDrawing();
     }

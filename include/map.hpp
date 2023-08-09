@@ -3,4 +3,5 @@
 #include <raylib.h>
 
 void DrawChessBoard();
-extern int cellSize;
+extern float x_cellSize;
+extern float y_cellSize;
