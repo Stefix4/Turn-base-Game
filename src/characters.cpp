@@ -6,7 +6,8 @@
 #include "movement.hpp"
 
 struct Character
-{ 
+{   
+    bool turn;
     int hp;
     int dmg;
 
@@ -25,10 +26,14 @@ struct Character
 };
 
 
-struct Hero :Character{
-    bool turn=true;
-    Color team =GREEN;
-    
+struct Hero :Character {
+    Color team;
+
+    Hero(int a,int b,Color color){
+        turn=true;
+        team=color;
+    } 
+
     void create(int x,int y,float x_cellSize,float y_cellSize){
         currentPosition( x, y, x_cellSize, y_cellSize,team);
     }
@@ -42,10 +47,14 @@ struct Hero :Character{
 
 };
 
-struct Monster :Character{
-    bool turn=false;
+struct Monster :Character {
     Color team= RED;
 
+    Monster(){
+        turn=false;
+    } 
+
+
     void create(int x,int y,float x_cellSize,float y_cellSize){
         currentPosition( x, y, x_cellSize, y_cellSize,team);
     }
@@ -61,7 +70,7 @@ struct Monster :Character{
 };
 
 
-Hero Hiro;
+Hero Hiro(4,4,BLUE);
 Monster enemy;
 
 void Char(int x,int y,int x_cellSize,int y_cellSize){
