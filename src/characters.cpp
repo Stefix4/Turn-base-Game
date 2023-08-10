@@ -19,7 +19,8 @@ struct Character
 
     void currentPosition(int x,int y,float x_cellSize,float y_cellSize,Color team){
         Vector2 position=getPosition(x,y,x_cellSize,y_cellSize);
-        DrawRectangleV(position,Vector2{x_cellSize,y_cellSize},team);
+        Rectangle source{position.x,position.y,x_cellSize,y_cellSize};
+        DrawRectangleRec(source,team);
     }
 };
 

@@ -3,6 +3,7 @@
 #include "movement.hpp"
 #include "characters.hpp"
 #include "map.hpp"
+#include "game.hpp"
 
 int x=4, y=4;
 
@@ -14,7 +15,10 @@ struct move{
 };
 move space;
 
- void movement() {
+ void movement(Texture2D hiro) {
+    Rectangle image{1,1,480, 540};
+    Rectangle image_desc{0,0,0,0};
+    DrawTexturePro(hiro,image,Hiro,Vector2{0,0},0.0f,WHITE);
     space.up = 1;
     space.down = mapSize;
     space.left = 1;

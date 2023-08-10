@@ -32,7 +32,7 @@ int main(void)
     //SetWindowMinSize(screenWidth,screenHeight);
     
     //declaring images/textures
-
+    Texture2D hiro = LoadTexture("./resources/hiro.png");
 
 
      //game loop
@@ -43,13 +43,15 @@ int main(void)
         toggleFullscreen();
         DrawChessBoard();
         Char(x,y,x_cellSize,y_cellSize);
-        movement();
+        movement(hiro);
         ClearBackground(WHITE);
         EndDrawing();
     }
 
+    UnloadTexture(hiro);
 
     CloseWindow();        
+
 
     return 0;
 }
