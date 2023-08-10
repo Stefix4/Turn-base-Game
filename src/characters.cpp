@@ -40,7 +40,7 @@ struct Hero :Character {
     void create(int x,int y,float x_cellSize,float y_cellSize, Texture2D hiro){
         Rectangle image{fr_x,fr_y,480, 540};
         currentPosition( x, y, x_cellSize, y_cellSize,team);
-        DrawTexturePro(hiro,image,getSource(x,y,x_cellSize,y_cellSize + 90),Vector2{0, 0},0.0f,WHITE);
+        DrawTexturePro(hiro,image,getSource(x,y,x_cellSize,y_cellSize),Vector2{0, 0},0.0f,WHITE);
         if(IsKeyPressed(KEY_W)){
             fr_x = 35;
             fr_y = 540;

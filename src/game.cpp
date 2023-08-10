@@ -32,7 +32,7 @@ int main(void)
     //SetWindowMinSize(screenWidth,screenHeight);
     
     //declaring images/textures
-    Texture2D hiro = LoadTexture("./resources/flappy-bird-logo.png");
+    Texture2D hiro = LoadTexture("./resources/hiro.png");
 
 
      //game loop
