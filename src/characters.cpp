@@ -19,9 +19,11 @@ struct Character
     }
 
     void currentPosition(int x,int y,float x_cellSize,float y_cellSize,Color team){
+        DrawRectangleRec(getSource(x,y,x_cellSize,y_cellSize),team);
+    }
+    Rectangle getSource(int x,int y,float x_cellSize,float y_cellSize){
         Vector2 position=getPosition(x,y,x_cellSize,y_cellSize);
-        Rectangle source{position.x,position.y,x_cellSize,y_cellSize};
-        DrawRectangleRec(source,team);
+        return Rectangle{position.x,position.y,x_cellSize,y_cellSize};
     }
 };
 
@@ -48,10 +50,11 @@ struct Hero :Character {
 };
 
 struct Monster :Character {
-    Color team= RED;
+    Color team;
 
-    Monster(){
+    Monster(int a,int b,Color color){
         turn=false;
+        team=color;
     } 
 
 
@@ -70,9 +73,9 @@ struct Monster :Character {
 };
 
 
-Hero Hiro(4,4,BLUE);
-Monster enemy;
-
+Hero Hiro(4,4,GREEN);
+Monster enemy(4,4,RED);
+Rectangle source =Hiro.getSource(x,y,x_cellSize,y_cellSize);
 void Char(int x,int y,int x_cellSize,int y_cellSize){
 Hiro.create(x,y,x_cellSize,y_cellSize);
 }
