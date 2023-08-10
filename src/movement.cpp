@@ -16,8 +16,6 @@ struct move{
 move space;
 
  void movement(Texture2D hiro) {
-    Rectangle image{1,1,480, 540};
-    DrawTexturePro(hiro,image,source,Vector2{0,0},0.0f,WHITE);
     space.up = 1;
     space.down = mapSize;
     space.left = 1;

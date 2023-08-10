@@ -42,7 +42,7 @@ int main(void)
         BeginDrawing();
         toggleFullscreen();
         DrawChessBoard();
-        Char(x,y,x_cellSize,y_cellSize);
+        Char(x,y,x_cellSize,y_cellSize,hiro);
         movement(hiro);
         ClearBackground(WHITE);
         EndDrawing();
