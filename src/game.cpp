@@ -42,8 +42,8 @@ int main(void)
         BeginDrawing();
         toggleFullscreen();
         DrawChessBoard();
-        Char(x,y,x_cellSize,y_cellSize,hiro);
-        movement(hiro);
+        Char(x_cellSize,y_cellSize,hiro);
+        movement();
         ClearBackground(WHITE);
         EndDrawing();
     }
