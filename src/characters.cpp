@@ -28,6 +28,7 @@ struct Character
     }
 };
 
+int E_x=5,E_y=4;
 
 struct Hero :Character {
     Color team;
@@ -40,25 +41,25 @@ struct Hero :Character {
     void create(int x,int y,float x_cellSize,float y_cellSize, Texture2D hiro){
         Rectangle image{fr_x,fr_y,480, 540};
         currentPosition( x, y, x_cellSize, y_cellSize,team);
-         DrawTexturePro(hiro,image,getSource(x,y-1,x_cellSize,y_cellSize),Vector2{0, 0},0.0f,WHITE);
-        if(IsKeyPressed(KEY_W)){
-            fr_x = 35;
-            fr_y = 520;
-        }
-        if(IsKeyPressed(KEY_S)){
-            fr_x = 35;
-            fr_y = 1;
-        }
+        DrawTexturePro(hiro,image,getSource(x,y-1,x_cellSize,y_cellSize),Vector2{0, 0},0.0f,WHITE);
+            if(IsKeyPressed(KEY_W)){
+                fr_x = 35;
+                fr_y = 520;
+            }
+            if(IsKeyPressed(KEY_S)){
+                fr_x = 35;
+                fr_y = 1;
+            }
 
-        if(IsKeyPressed(KEY_D)){
-            fr_x = 900;
-            fr_y = 520;
-        }
+            if(IsKeyPressed(KEY_D)){
+                fr_x = 900;
+                fr_y = 520;
+            }
 
-        if(IsKeyPressed(KEY_A)){
-            fr_x = 900;
-            fr_y = 1;
-        }
+            if(IsKeyPressed(KEY_A)){
+                fr_x = 900;
+                fr_y = 1;
+            }
     }
     //texture//
     
@@ -79,8 +80,8 @@ struct Monster :Character {
     } 
 
 
-    void create(int x,int y,float x_cellSize,float y_cellSize){
-        currentPosition( x, y, x_cellSize, y_cellSize,team);
+    void create(int E_x,int E_y,float x_cellSize,float y_cellSize){
+        currentPosition( E_x, E_y, x_cellSize, y_cellSize,team);
     }
     //texture//
 
@@ -95,8 +96,8 @@ struct Monster :Character {
 
 
 Hero Hiro(4,4,GREEN);
-Monster Enemy(5,4,RED);
+Monster Enemy(E_x,E_y,RED);
 void Char(int x,int y,int x_cellSize,int y_cellSize,Texture2D hiro){
 Hiro.create(x,y,x_cellSize,y_cellSize,hiro);
-Enemy.create(5,4,x_cellSize,y_cellSize);
+Enemy.create(E_x,E_y,x_cellSize,y_cellSize);
 }

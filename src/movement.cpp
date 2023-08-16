@@ -20,16 +20,21 @@ move space;
     space.down = mapSize;
     space.left = 1;
     space.right = mapSize;
-    if(y > space.up)
+    if(y > space.up && y >= E_y + 2 && x <= E_x + 2){
         if (IsKeyPressed(KEY_W))
             y -= 1;
-    if(y < space.down)
+    }
+    if(y < space.down){
         if(IsKeyPressed(KEY_S)) 
             y += 1;
-    if(x < space.right)
+    }
+    if(x < space.right){
         if(IsKeyPressed(KEY_D))
             x += 1;
-    if(x > space.left)
+    }
+    if(x > space.left){//y<=, 
         if (IsKeyPressed(KEY_A)) 
             x -= 1;
     }
+ }
+ 
