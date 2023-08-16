@@ -5,4 +5,4 @@
 void DrawChessBoard();
 extern float x_cellSize;
 extern float y_cellSize;
-extern int mapSize;
+extern const int mapSize;
