@@ -3,7 +3,6 @@
 #include "map.hpp"
 #include "characters.hpp"
 #include "game.hpp"
-#include "movement.hpp"
 
 int screenWidth = 1280;
 int screenHeight = 780;
@@ -43,7 +42,6 @@ int main(void)
         toggleFullscreen();
         DrawChessBoard();
         Char(x_cellSize,y_cellSize,hiro);
-        movement();
         ClearBackground(WHITE);
         EndDrawing();
     }

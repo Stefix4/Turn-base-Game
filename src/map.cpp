@@ -5,7 +5,6 @@
 #include "characters.hpp"
 
 const int mapSize=7;
-bool motion=false;
 float x_cellSize =screenWidth/mapSize;
 float y_cellSize=screenHeight/mapSize;
 struct map{
@@ -15,21 +14,20 @@ struct map{
     bool ocuppied=false;
 
 
-    void events(int j,int i){
-        if(cell_number<=mapSize*mapSize)
-            cell_number++;
-        if(x==j+1&&y==i+1){
-            ocuppied=true;
-            coord[j][i]=1;
-        }
-        else {
-            ocuppied=false;
-            if(coord[j][i]==1){
-                motion=true;
-            }
-            coord[j][i]=0;
-        }
-    }
+    // void events(int j,int i){
+    //     if(cell_number<=mapSize*mapSize)
+    //         cell_number++;
+    //     if(x==j+1&&y==i+1){
+    //         ocuppied=true;
+    //         coord[j][i]=1;
+    //     }
+    //     else {
+    //         ocuppied=false;
+    //         if(coord[j][i]==1){
+    //         }
+    //         coord[j][i]=0;
+    //     }
+    // }
 };
 map cell;
 void DrawChessBoard() {
