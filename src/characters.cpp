@@ -38,7 +38,6 @@ struct Character
 
 };
 
-int E_x=5,E_y=4;
 
 struct Hero :Character {
     Color team;
@@ -74,15 +73,15 @@ struct Hero :Character {
             fr_y = 1;
         }
 
-            if(IsKeyPressed(KEY_D)){
-                fr_x = 900;
-                fr_y = 520;
-            }
+        if(IsKeyPressed(KEY_D)){
+            fr_x = 900;
+            fr_y = 520;
+        }
 
-            if(IsKeyPressed(KEY_A)){
-                fr_x = 900;
-                fr_y = 1;
-            }
+        if(IsKeyPressed(KEY_A)){
+            fr_x = 900;
+            fr_y = 1;
+        }
     }
 
     void create(float x_cellSize,float y_cellSize, Texture2D hiro){
@@ -110,11 +109,12 @@ struct Monster :Character {
         pos_y=b;
         turn=false;
         team=color;
-    } 
+    }
 
 
-    void create(int x,int y,float x_cellSize,float y_cellSize){
-        currentPosition( x, y, x_cellSize, y_cellSize,team);
+    void create(float x_cellSize,float y_cellSize, Texture2D hiro){
+        currentPosition(x_cellSize, y_cellSize,team);
+        DrawTexture(x_cellSize,y_cellSize,hiro);
     }
     //texture//
 
@@ -129,8 +129,8 @@ struct Monster :Character {
 
 
 Hero Hiro(4,4,GREEN);
-Monster Enemy(5,4,RED);
-void Char(int x,int y,int x_cellSize,int y_cellSize,Texture2D hiro){
-Hiro.create(x,y,x_cellSize,y_cellSize,hiro);
-Enemy.create(5,4,x_cellSize,y_cellSize);
+Monster Enemy(2,4,RED);
+void Char(int x_cellSize,int y_cellSize,Texture2D hiro){
+Hiro.create(x_cellSize,y_cellSize,hiro);
+Enemy.create(x_cellSize,y_cellSize,hiro);
 }
