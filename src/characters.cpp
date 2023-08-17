@@ -6,7 +6,7 @@
 
 struct Character
 {   
-    int pos_x,pos_y;
+    float pos_x,pos_y;
     bool turn;
     int hp;
     int dmg;
@@ -35,7 +35,9 @@ struct Character
         return coords;
     }
 
-
+    Vector2 getCurrentpos(){
+        return Vector2{pos_x,pos_y};
+    }
 };
 
 
@@ -85,8 +87,8 @@ struct Hero :Character {
     }
 
     void create(float x_cellSize,float y_cellSize, Texture2D hiro){
-        currentPosition( x_cellSize, y_cellSize,team);
-        DrawText(TextFormat("%d",pos_x),1,1,50,PINK);
+        //currentPosition( x_cellSize, y_cellSize,team);
+        //DrawText(TextFormat("%f",pos_x),1,1,50,PINK);
         DrawTexture(x_cellSize,y_cellSize,hiro);
         animation();
         movement();
@@ -130,6 +132,9 @@ struct Monster :Character {
 
 Hero Hiro(4,4,GREEN);
 Monster Enemy(2,4,RED);
+
+Vector2 pos_h=Hiro.getCurrentpos();
+
 void Char(int x_cellSize,int y_cellSize,Texture2D hiro){
 Hiro.create(x_cellSize,y_cellSize,hiro);
 Enemy.create(x_cellSize,y_cellSize,hiro);
