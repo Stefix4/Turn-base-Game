@@ -30,16 +30,20 @@ struct map{
     }
 };
 map cell;
-void DrawChessBoard() {
+void DrawChessBoard(Texture2D grass) {
+    Rectangle image{0, 0, 2000, 2000};
+    DrawTexturePro(grass,image,Rectangle{0,0,screenWidth,screenHeight},Vector2{0,0},0.0f,WHITE);
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
-            Color cellColor = ((i + j) % 2 == 0) ? LIGHTGRAY : DARKGRAY;
-            DrawRectangle(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
+            Color cellColor = RED;
+            DrawRectangleLines(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
             
             
             cell.events(j,i);
             
             DrawText(TextFormat("%d",cell.coord[j][i]),j * x_cellSize, i * y_cellSize,50,PINK);
         }
+    
+    
     }//j * x_cellSize, i * y_cellSize
 }

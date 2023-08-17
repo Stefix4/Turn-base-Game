@@ -4,8 +4,8 @@
 #include "characters.hpp"
 #include "game.hpp"
 
-int screenWidth = 1280;
-int screenHeight = 780;
+float screenWidth = 1280;
+float screenHeight = 780;
 
 //fullscreen
 void toggleFullscreen(){
@@ -32,6 +32,7 @@ int main(void)
     
     //declaring images/textures
     Texture2D hiro = LoadTexture("./resources/hiro.png");
+    Texture2D grass = LoadTexture("./resources/grass.png");
 
 
      //game loop
@@ -40,13 +41,14 @@ int main(void)
 
         BeginDrawing();
         toggleFullscreen();
-        DrawChessBoard();
+        DrawChessBoard(grass);
         Char(x_cellSize,y_cellSize,hiro);
         ClearBackground(WHITE);
         EndDrawing();
     }
 
     UnloadTexture(hiro);
+    UnloadTexture(grass);
 
     CloseWindow();        
 

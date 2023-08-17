@@ -4,6 +4,8 @@
 #include "map.hpp"
 #include "game.hpp"
 
+int cordx=4, cordy=4;
+
 struct Character
 {   
     float pos_x,pos_y;
@@ -11,8 +13,6 @@ struct Character
     int hp;
     int dmg;
     float fr_x=35,fr_y=1;
-
-
 
 
     void currentPosition(float x_cellSize,float y_cellSize,Color team){
@@ -103,6 +103,7 @@ struct Hero :Character {
 
 };
 
+
 struct Monster :Character {
     Color team;
 
@@ -133,7 +134,7 @@ struct Monster :Character {
 Hero Hiro(4,4,GREEN);
 Monster Enemy(2,4,RED);
 
-Vector2 pos_h=Hiro.getCurrentpos();
+Vector2 pos_h= Hiro.getCurrentpos();
 
 void Char(int x_cellSize,int y_cellSize,Texture2D hiro){
 Hiro.create(x_cellSize,y_cellSize,hiro);

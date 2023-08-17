@@ -1,5 +1,6 @@
 #pragma once
 
-extern int screenWidth;
-extern int screenHeight;
+extern float screenWidth;
+extern float screenHeight;
 extern Texture2D hiro;
+extern Texture2D grass;
