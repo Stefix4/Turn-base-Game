@@ -4,6 +4,7 @@
 #include "map.hpp"
 #include "game.hpp"
 
+
 struct Character
 {   
     float pos_x,pos_y;
