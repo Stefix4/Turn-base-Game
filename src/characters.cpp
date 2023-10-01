@@ -1,20 +1,24 @@
 #include <raylib.h>
+#include <functional>
+#include <string>
+#include <map>
 
 #include "characters.hpp"
 #include "map.hpp"
 #include "game.hpp"
+#include "Observer.hpp"
 
-int cordx=4, cordy=4;
 
-struct Character
+
+Observer events;
+struct Character:Observer
 {   
-    float pos_x,pos_y;
     bool turn;
     int hp;
     int dmg;
     float fr_x=35,fr_y=1;
-
-
+    
+    
     void currentPosition(float x_cellSize,float y_cellSize,Color team){
         DrawRectangleV(getPosition(pos_x,pos_y,x_cellSize,y_cellSize),Vector2{x_cellSize,y_cellSize},team);
     }
@@ -35,37 +39,41 @@ struct Character
         return coords;
     }
 
-    Vector2 getCurrentpos(){
-        return Vector2{pos_x,pos_y};
-    }
+
+    
 };
 
 
 struct Hero :Character {
     Color team;
-
+    
     Hero(int a,int b,Color color){
         pos_x=a;
         pos_y=b;
         turn=true;
         team=color;
     } 
-
+    
     void movement() {
         if(pos_y > 1)
-            if (IsKeyPressed(KEY_W))
-                pos_y -= 1;
+            if (IsKeyPressed(KEY_W)){
+                pos_y -= 1;turn=false;
+            }
         if(pos_y < mapSize)
-            if(IsKeyPressed(KEY_S)) 
-                pos_y += 1;
+            if(IsKeyPressed(KEY_S)) {
+                pos_y += 1;turn=false;
+            }
         if(pos_x < mapSize)
-            if(IsKeyPressed(KEY_D))
-                pos_x += 1;
+            if(IsKeyPressed(KEY_D)){
+                pos_x += 1;turn=false;
+            }
         if(pos_x > 1)
-            if (IsKeyPressed(KEY_A)) 
-                pos_x -= 1;
+            if (IsKeyPressed(KEY_A)) {
+                pos_x -= 1;turn=false;
+            }
     }
     void animation(){
+        
         if(IsKeyPressed(KEY_W)){
             fr_x = 35;
             fr_y = 520;
@@ -91,7 +99,8 @@ struct Hero :Character {
         //DrawText(TextFormat("%f",pos_x),1,1,50,PINK);
         DrawTexture(x_cellSize,y_cellSize,hiro);
         animation();
-        movement();
+        events.add("movement_player",[=](){movement();});
+        events.execute("movement_player");
     }
     //texture//
     
@@ -131,12 +140,15 @@ struct Monster :Character {
 };
 
 
+
 Hero Hiro(4,4,GREEN);
 Monster Enemy(2,4,RED);
 
-Vector2 pos_h= Hiro.getCurrentpos();
+
+
 
 void Char(int x_cellSize,int y_cellSize,Texture2D hiro){
 Hiro.create(x_cellSize,y_cellSize,hiro);
 Enemy.create(x_cellSize,y_cellSize,hiro);
 }
+
