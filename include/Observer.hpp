@@ -15,7 +15,7 @@ struct Observer{
 
     std::map<std::pair<int,int>,bool>Obstacles;
 
-    float pos_x,pos_y;
+    
     
     void add (int x=0, int y=0){
         if(x&&y)

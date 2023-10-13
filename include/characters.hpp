@@ -4,4 +4,5 @@
 
 void Char(int x_cellSize,int y_cellSize,Texture2D hiro);
 
-extern Vector2 pos_h;
+
+extern Vector2 x;

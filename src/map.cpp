@@ -10,32 +10,19 @@ const int mapSize=7;
 float x_cellSize =screenWidth/mapSize;
 float y_cellSize=screenHeight/mapSize;
 Observer obstacles;
-struct Map:Observer{
-    int cell_number=0;
-    int coord[mapSize][mapSize]={0};
-
-    bool ocuppied=false;
-
-    void add_wall(){
-        obstacles.add(1,1);
+struct Cell{
+    int position_x, position_y;
+    bool free;
+    Cell(int x,int y,bool f){
+        position_x=x;
+        position_y=y;
+        free=f;
     }
-
-    void events(int j,int i){
-        if(cell_number<=mapSize*mapSize)
-            cell_number++;
-        if(pos_x==j+1&&pos_y==i+1){
-            ocuppied=true;
-            coord[j][i]=1;
-        }
-        else {
-            ocuppied=false;
-            if(coord[j][i]==1){
-            }
-            coord[j][i]=0;
-        }
+    void show_position(){
+        DrawText(TextFormat("%i",position_x),position_x * x_cellSize, position_y * y_cellSize,100,PINK);
     }
+    
 };
-Map cell;
 void DrawChessBoard(Texture2D grass) {
     Rectangle image{0, 0, 2000, 2000};
     DrawTexturePro(grass,image,Rectangle{0,0,screenWidth,screenHeight},Vector2{0,0},0.0f,WHITE);
@@ -43,14 +30,12 @@ void DrawChessBoard(Texture2D grass) {
         for (int j = 0; j < mapSize; j++) {
             Color cellColor = RED;
             DrawRectangleLines(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
+
             
-            
-            cell.events(j,i);
-            cell.add_wall();
-            DrawText(TextFormat("%d",cell.coord[j][i]),j * x_cellSize, i * y_cellSize,50,PINK);
+            Cell cell(i,j,false);
+            cell.show_position();
         }
     
     
     }//j * x_cellSize, i * y_cellSize
 }
-

@@ -9,7 +9,7 @@
 #include "Observer.hpp"
 
 
-
+float pos_x,pos_y;
 Observer events;
 struct Character:Observer
 {   
@@ -17,6 +17,7 @@ struct Character:Observer
     int hp;
     int dmg;
     float fr_x=35,fr_y=1;
+    
     
     
     void currentPosition(float x_cellSize,float y_cellSize,Color team){
@@ -38,7 +39,10 @@ struct Character:Observer
         coords.y =y_cellSize*(pos_y-1);     
         return coords;
     }
-
+    
+    Vector2 board_position(float x,float y){   
+        return Vector2{x,y};
+    }
 
     
 };
@@ -101,7 +105,7 @@ struct Hero :Character {
         animation();
         events.add("movement_player",[=](){movement();});
         events.execute("movement_player");
-    }
+        }
     //texture//
     
     //////////
@@ -143,7 +147,6 @@ struct Monster :Character {
 
 Hero Hiro(4,4,GREEN);
 Monster Enemy(2,4,RED);
-
 
 
 
