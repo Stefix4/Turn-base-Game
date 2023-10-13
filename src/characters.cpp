@@ -9,10 +9,11 @@
 #include "Observer.hpp"
 
 
-float pos_x,pos_y;
+
 Observer events;
 struct Character:Observer
-{   
+{  
+    float pos_x,pos_y;
     bool turn;
     int hp;
     int dmg;
@@ -104,7 +105,8 @@ struct Hero :Character {
         DrawTexture(x_cellSize,y_cellSize,hiro);
         animation();
         events.add("movement_player",[=](){movement();});
-        events.execute("movement_player");
+        if(is_ocupied==false)
+            events.execute("movement_player");
         }
     //texture//
     
@@ -145,7 +147,7 @@ struct Monster :Character {
 
 
 
-Hero Hiro(4,4,GREEN);
+Hero Hiro(player_position.x,player_position.y,GREEN);
 Monster Enemy(2,4,RED);
 
 
