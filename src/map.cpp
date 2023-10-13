@@ -9,11 +9,16 @@
 const int mapSize=7;
 float x_cellSize =screenWidth/mapSize;
 float y_cellSize=screenHeight/mapSize;
+Observer obstacles;
 struct Map:Observer{
     int cell_number=0;
     int coord[mapSize][mapSize]={0};
 
     bool ocuppied=false;
+
+    void add_wall(){
+        obstacles.add(1,1);
+    }
 
     void events(int j,int i){
         if(cell_number<=mapSize*mapSize)
@@ -41,6 +46,7 @@ void DrawChessBoard(Texture2D grass) {
             
             
             cell.events(j,i);
+            cell.add_wall();
             DrawText(TextFormat("%d",cell.coord[j][i]),j * x_cellSize, i * y_cellSize,50,PINK);
         }
     
