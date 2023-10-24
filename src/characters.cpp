@@ -7,6 +7,7 @@
 #include "map.hpp"
 #include "game.hpp"
 #include "Observer.hpp"
+#include "check.hpp"
 
 
 
@@ -58,7 +59,6 @@ struct Hero :Character {
         turn=true;
         team=color;
     } 
-    
     void movement() {
         if(pos_y > 1)
             if (IsKeyPressed(KEY_W)){
@@ -98,16 +98,16 @@ struct Hero :Character {
             fr_y = 1;
         }
     }
-
+    
     void create(float x_cellSize,float y_cellSize, Texture2D hiro){
+        
         //currentPosition( x_cellSize, y_cellSize,team);
         //DrawText(TextFormat("%f",pos_x),1,1,50,PINK);
         DrawTexture(x_cellSize,y_cellSize,hiro);
         animation();
         events.add("movement_player",[=](){movement();});
-        if(is_ocupied==false)
-            events.execute("movement_player");
-        }
+        events.execute("movement_player");
+    }
     //texture//
     
     //////////
@@ -153,7 +153,7 @@ Monster Enemy(2,4,RED);
 
 
 void Char(int x_cellSize,int y_cellSize,Texture2D hiro){
-Hiro.create(x_cellSize,y_cellSize,hiro);
-Enemy.create(x_cellSize,y_cellSize,hiro);
+    Hiro.create(x_cellSize,y_cellSize,hiro);
+    Enemy.create(x_cellSize,y_cellSize,hiro);
 }
 
