@@ -1,11 +1,9 @@
 #include <raylib.h>
 
-
 #include "map.hpp"
 #include "game.hpp"
 #include "characters.hpp"
 #include "Observer.hpp"
-#include "check.hpp"
 
 const int mapSize=7;
 
@@ -14,24 +12,25 @@ float x_cellSize =screenWidth/mapSize;
 float y_cellSize=screenHeight/mapSize;
 
 Vector2 player_position={5,4};
+int x=5,y=4;
 
-
-int board[7][7]={{0,0,0,0,0,0,0},
-                 {1,1,1,1,1,1,1},
-                 {0,0,1,0,0,0,0},
-                 {0,0,1,0,0,0,0},
-                 {0,0,1,0,0,0,0},
-                 {0,0,1,0,0,0,0},
-                 {0,0,1,0,0,0,0}
+//                     0,1,2,3,4,5,6
+int board[7][7]={/*0*/{0,0,0,0,1,0,0},
+                 /*1*/{0,0,0,0,1,1,0},
+                 /*2*/{0,0,1,0,0,0,0},
+                 /*3*/{0,0,0,1,0,0,0},
+                 /*4*/{0,0,0,1,0,0,0},
+                 /*5*/{0,0,0,0,0,0,0},
+                 /*6*/{0,0,0,0,0,1,0}
                 };
 
-struct Cell{
+struct Board{
 
     int position_x, position_y;
 
     bool free;
 
-    Cell(int x,int y,bool f=true){
+    Board(int y,int x,bool f=true){
         position_x=x;
         position_y=y;
         free=f;
@@ -42,13 +41,13 @@ struct Cell{
     }
 
     void ocupied(int x,int y){
-        if(position_x+1==x && position_y+1==y)
-            free=false;
+        if(position_x==x && position_y==y)
+            board[y][x]=1;
     }
 
     void unocupied(int x,int y){
-        if(position_x+1==x && position_y+1==y)
-            free=true;
+        if(position_x==x && position_y==y)
+            board[y][x]=0;
     }
 
     bool check_free(int x,int y){
@@ -56,24 +55,39 @@ struct Cell{
             return free;
         return false;
     }
+    void rand_ocupied(int n){
+    int a,b;
+    while(n){
+        a=GetRandomValue(0,6);
+        b=GetRandomValue(0,6);
+        if(board[a][b]==0)
+            ocupied(a,b);
+        n--;
+    }
+}
+
 };
 
 void movement() {
-        if(player_position.y > 1)
-            if (IsKeyPressed(KEY_W)){
-                player_position.y -= 1;
-            }
-        if(player_position.y < mapSize)
+        if(y > 1)
+            if(board[y-2][x-1]==0)
+                if (IsKeyPressed(KEY_W)){
+                    y -= 1;
+                }
+        if(y < mapSize)
+            if(board[y][x-1]==0)
             if(IsKeyPressed(KEY_S)) {
-                player_position.y += 1;
+                y += 1;
             }
-        if(player_position.x < mapSize)
+        if(x < mapSize)
+            if(board[y-1][x]==0)
             if(IsKeyPressed(KEY_D)){
-                player_position.x += 1;
+                x += 1;
             }
-        if(player_position.x > 1)
+        if(x > 1)
+            if(board[y-1][x-2]==0)
             if (IsKeyPressed(KEY_A)) {
-                player_position.x -= 1;
+                x -= 1;
             }
 }
 
@@ -86,19 +100,16 @@ void DrawChessBoard(Texture2D grass) {
             Color cellColor = RED;
             DrawRectangleLines(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
 
-            Cell cell(i,j);
+            Board cell(i,j);
 
-            if(board[j][i]==1)
+
+            if(board[i][j]==1)
                 cell.free=false;
-            else if(board[j][i]==0)
+            else if(board[i][j]==0)
                 cell.free=true;
-
-            if(player_position.x==i+1&&player_position.y==j+1)
+            if(x==j+1&&y==i+1)
                 cell.free=false;
-            
 
-            cell.ocupied(1,1);
-            cell.unocupied(1,2);
 
 
             if(cell.free)

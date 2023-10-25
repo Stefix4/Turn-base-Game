@@ -7,14 +7,14 @@
 #include "map.hpp"
 #include "game.hpp"
 #include "Observer.hpp"
-#include "check.hpp"
+
 
 
 
 Observer events;
 struct Character:Observer
 {  
-    float pos_x,pos_y;
+    int pos_x,pos_y;
     bool turn;
     int hp;
     int dmg;
@@ -61,21 +61,25 @@ struct Hero :Character {
     } 
     void movement() {
         if(pos_y > 1)
-            if (IsKeyPressed(KEY_W)){
-                pos_y -= 1;turn=false;
-            }
+            if(board[pos_y-2][pos_x-1]==0)
+                if (IsKeyPressed(KEY_W)){
+                    pos_y -= 1;turn=false;
+                }
         if(pos_y < mapSize)
-            if(IsKeyPressed(KEY_S)) {
-                pos_y += 1;turn=false;
-            }
+            if(board[pos_y][pos_x-1]==0)
+                if(IsKeyPressed(KEY_S)) {
+                    pos_y += 1;turn=false;
+                }
         if(pos_x < mapSize)
-            if(IsKeyPressed(KEY_D)){
-                pos_x += 1;turn=false;
-            }
+            if(board[pos_y-1][pos_x]==0)
+                if(IsKeyPressed(KEY_D)){
+                    pos_x += 1;turn=false;
+                }
         if(pos_x > 1)
-            if (IsKeyPressed(KEY_A)) {
-                pos_x -= 1;turn=false;
-            }
+            if(board[pos_y-1][pos_x-2]==0)
+                if (IsKeyPressed(KEY_A)) {
+                    pos_x -= 1;turn=false;
+                }
     }
     void animation(){
         
