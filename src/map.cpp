@@ -55,18 +55,10 @@ struct Board{
             return free;
         return false;
     }
-    void rand_ocupied(int n){
-    int a,b;
-    while(n){
-        a=GetRandomValue(0,6);
-        b=GetRandomValue(0,6);
-        if(board[a][b]==0)
-            ocupied(a,b);
-        n--;
-    }
-}
-
 };
+
+
+
 
 void movement() {
         if(y > 1)
@@ -110,7 +102,7 @@ void DrawChessBoard(Texture2D grass) {
             if(x==j+1&&y==i+1)
                 cell.free=false;
 
-
+            
 
             if(cell.free)
                 cell.show_position();
@@ -119,6 +111,5 @@ void DrawChessBoard(Texture2D grass) {
     
     
     }
-    
     movement();
 }
