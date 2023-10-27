@@ -2,7 +2,8 @@
 
 #include <raylib.h>
 
-void DrawChessBoard(Texture2D grass);
+void InitiateBoard(Texture2D grass,Texture2D stone_1,Texture2D stone_2,Texture2D stone_3,Texture2D bush_1,Texture2D bush_2,Texture2D bush_3,Texture2D bush_4);
+void ModifyBoard();
 extern float x_cellSize;
 extern float y_cellSize;
 extern const int mapSize;
