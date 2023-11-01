@@ -61,25 +61,26 @@ struct Cell{
             return free;
         return false;
     }
-    void give_texture(int j, int i, Texture2D stone_1, Texture2D stone_2, Texture2D stone_3, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3, Texture2D bush_4) {
+    void give_texture(Texture2D stone_1, Texture2D stone_2, Texture2D stone_3, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3, Texture2D bush_4) {
+        Rectangle position {position_x * x_cellSize, position_y * y_cellSize, position_x + 1 * x_cellSize, position_y + 1 * y_cellSize};
         if (has_texture) {
             return;
         }
         int text_select = rand() % 7 + 1;
         if (text_select == 1) {
-            DrawTexturePro(stone_1, Rectangle{0, 200, 555, 379}, Rectangle{j * x_cellSize, i * y_cellSize, j + 1 * x_cellSize, i + 1 * y_cellSize}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(stone_1, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 2) {
-            DrawTexturePro(stone_2, Rectangle{0, 200, 555, 379}, Rectangle{j * x_cellSize, i * y_cellSize, j + 1 * x_cellSize, i + 1 * y_cellSize}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(stone_2, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 3) {
-            DrawTexturePro(stone_3, Rectangle{0, 200, 555, 379}, Rectangle{j * x_cellSize, i * y_cellSize, j + 1 * x_cellSize, i + 1 * y_cellSize}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(stone_3, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 4) {
-            DrawTexturePro(bush_1, Rectangle{0, 200, 555, 379}, Rectangle{j * x_cellSize, i * y_cellSize, j + 1 * x_cellSize, i + 1 * y_cellSize}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(bush_1, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 5) {
-            DrawTexturePro(bush_2, Rectangle{0, 200, 555, 379}, Rectangle{j * x_cellSize, i * y_cellSize, j + 1 * x_cellSize, i + 1 * y_cellSize}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(bush_2, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 6) {
-            DrawTexturePro(bush_3, Rectangle{0, 200, 555, 379}, Rectangle{j * x_cellSize, i * y_cellSize, j + 1 * x_cellSize, i + 1 * y_cellSize}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(bush_3, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 7) {
-            DrawTexturePro(bush_4, Rectangle{0, 200, 555, 379}, Rectangle{j * x_cellSize, i * y_cellSize, j + 1 * x_cellSize, i + 1 * y_cellSize}, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(bush_4, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         }
         has_texture = true;
     }
@@ -109,7 +110,7 @@ void movement() {
             }
 }
 
-std::map<std::pair<int,int>, Cell> Cell_Instance;
+std::map<std::pair<int,int>, Cell> cell_Instance;
 
 void InitiateBoard(Texture2D grass,Texture2D stone_1,Texture2D stone_2,Texture2D stone_3,Texture2D bush_1,Texture2D bush_2,Texture2D bush_3,Texture2D bush_4) {
     Rectangle image{0, 0, 2000, 2000};
@@ -120,22 +121,22 @@ void InitiateBoard(Texture2D grass,Texture2D stone_1,Texture2D stone_2,Texture2D
             DrawRectangleLines(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
 
 
-            Cell_Instance[{i,j}]=Cell(i, j, true,false);
+            cell_Instance[{i,j}]=Cell(i, j, true,false);
 
             if(board[i][j]==1){
-                Cell_Instance[{i,j}].free=false;
+                cell_Instance[{i,j}].free=false;
             }
             else if(board[i][j]==0)
-                Cell_Instance[{i,j}].free=true;
+                cell_Instance[{i,j}].free=true;
             
             if(x==j+1&&y==i+1){
-                Cell_Instance[{i,j}].free=false;
-                Cell_Instance[{i,j}].character=true;
+                cell_Instance[{i,j}].free=false;
+                cell_Instance[{i,j}].character=true;
             }
 
             
-            if(Cell_Instance[{i,j}].free==false && Cell_Instance[{i,j}].has_texture==false && Cell_Instance[{i,j}].character==false){
-                Cell_Instance[{i,j}].give_texture(j,i,stone_1,stone_2,stone_3,bush_1,bush_2,bush_3,bush_4);
+            if(cell_Instance[{i,j}].free==false && cell_Instance[{i,j}].has_texture==false && cell_Instance[{i,j}].character==false){
+                cell_Instance[{i,j}].give_texture(stone_1,stone_2,stone_3,bush_1,bush_2,bush_3,bush_4);
             }
         }
     
@@ -147,8 +148,8 @@ void ModifyBoard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
 
-            if(Cell_Instance[{i,j}].free){
-                Cell_Instance[{i,j}].show_position();
+            if(cell_Instance[{i,j}].free){
+                cell_Instance[{i,j}].show_position();
             }
 
 
