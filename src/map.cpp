@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <cstdlib>
+#include <time.h> 
 
 #include "map"
 #include "utility"
@@ -11,6 +12,8 @@
 
 const int mapSize=7;
 
+int seed=1000;
+
 float x_cellSize =screenWidth/mapSize;
 
 float y_cellSize=screenHeight/mapSize;
@@ -21,18 +24,19 @@ Vector2 player_position={5,4};
 int x=5,y=4;
 
 //                     0 ,1 ,2 ,3 ,4 ,5 ,6
-int board[7][7]={/*0*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*1*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*2*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*3*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*4*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*5*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*6*/{0 ,0 ,1 ,0 ,0 ,0 ,0}
+int board[7][7]={/*0*/{1 ,0 ,1 ,0 ,0 ,0 ,0},
+                 /*1*/{1 ,0 ,1 ,0 ,1 ,0 ,0},
+                 /*2*/{1 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*3*/{1 ,0 ,1 ,0 ,0 ,0 ,0},
+                 /*4*/{1 ,1 ,1 ,1 ,1 ,1 ,1},
+                 /*5*/{1 ,0 ,1 ,1 ,1 ,0 ,0},
+                 /*6*/{1 ,0 ,1 ,1 ,1 ,1 ,0}
                 };
 
 struct Cell{
+
     
-    
+
     int position_x, position_y;
 
     bool free,character=false;
@@ -115,12 +119,13 @@ std::map<std::pair<int,int>, Cell> cell_Instance;
 void InitiateBoard(Texture2D grass,Texture2D stone_1,Texture2D stone_2,Texture2D stone_3,Texture2D bush_1,Texture2D bush_2,Texture2D bush_3,Texture2D bush_4) {
     Rectangle image{0, 0, 2000, 2000};
     DrawTexturePro(grass,image,Rectangle{0,0,screenWidth,screenHeight},Vector2{0,0},0.0f,WHITE);
+    seed=1000;
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
             Color cellColor = RED;
             DrawRectangleLines(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
 
-
+            srand(seed); 
             cell_Instance[{i,j}]=Cell(i, j, true,false);
 
             if(board[i][j]==1){
@@ -138,6 +143,7 @@ void InitiateBoard(Texture2D grass,Texture2D stone_1,Texture2D stone_2,Texture2D
             if(cell_Instance[{i,j}].free==false && cell_Instance[{i,j}].has_texture==false && cell_Instance[{i,j}].character==false){
                 cell_Instance[{i,j}].give_texture(stone_1,stone_2,stone_3,bush_1,bush_2,bush_3,bush_4);
             }
+            seed++;
         }
     
     
