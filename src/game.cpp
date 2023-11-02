@@ -35,9 +35,9 @@ int main(void)
     Texture2D grass = LoadTexture("./resources/grass.png");
     Texture2D stone_1=LoadTexture("./resources/stone_v1.png");
     Texture2D stone_2=LoadTexture("./resources/stone_v2.png");
-    Texture2D stone_3=LoadTexture("./resources/stone_v2(2).png");
-    Texture2D bush_1 = LoadTexture("./resources/bush_v1.png");
-    Texture2D bush_2 = LoadTexture("./resources/bush_v1(2).png");
+    Texture2D stone_3=LoadTexture("./resources/stone_v3.png");
+    Texture2D bush_1 = LoadTexture("./resources/bush_v1(1).png");
+    Texture2D bush_2 = LoadTexture("./resources/bush_v1.png");
     Texture2D bush_3 = LoadTexture("./resources/bush_v2.png");
     Texture2D bush_4 = LoadTexture("./resources/bush_v2(2).png");
 
