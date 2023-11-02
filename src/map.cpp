@@ -24,14 +24,25 @@ Vector2 player_position={5,4};
 int x=5,y=4;
 
 //                     0 ,1 ,2 ,3 ,4 ,5 ,6
-int board[7][7]={/*0*/{1 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*1*/{1 ,0 ,1 ,0 ,1 ,0 ,0},
-                 /*2*/{1 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*3*/{1 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*4*/{1 ,1 ,1 ,1 ,1 ,1 ,1},
-                 /*5*/{1 ,0 ,1 ,1 ,1 ,0 ,0},
-                 /*6*/{1 ,0 ,1 ,1 ,1 ,1 ,0}
+int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*1*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*2*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*3*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*4*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*5*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*6*/{0 ,0 ,0 ,0 ,0 ,0 ,0}
                 };
+
+// void randomize_board(){
+//     int k = mapSize * 2 + 1;
+//     while(k){
+//     for(int i = 0; i < mapSize; i++)
+//         for(int j = 0; j < mapSize; j++){
+            
+//     }
+
+// }
+// }
 
 struct Cell{
 
@@ -52,39 +63,37 @@ struct Cell{
 
     void ocupied(int x,int y){
         if(position_x==x && position_y==y)
-            board[y][x]=1;
+            board[y][x] = 1;
     }
 
     void unocupied(int x,int y){
         if(position_x==x && position_y==y)
-            board[y][x]=0;
+            board[y][x] = 0;
     }
 
     bool check_free(int x,int y){
-        if(x==position_x&&y==position_y)
+        if(x == position_x && y == position_y)
             return free;
         return false;
     }
-    void give_texture(Texture2D stone_1, Texture2D stone_2, Texture2D stone_3, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3, Texture2D bush_4) {
+    void give_texture(Texture2D stone_1, Texture2D stone_2, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3) {
         Rectangle position {position_x * x_cellSize, position_y * y_cellSize, position_x + 1 * x_cellSize, position_y + 1 * y_cellSize};
         if (has_texture) {
             return;
         }
-        int text_select = rand() % 7 + 1;
+        int text_select = rand() % 6 + 1;
         if (text_select == 1) {
             DrawTexturePro(stone_1, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 2) {
             DrawTexturePro(stone_2, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 3) {
-            DrawTexturePro(stone_3, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
+            DrawTexturePro(bush_1, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 4) {
             DrawTexturePro(bush_1, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 5) {
             DrawTexturePro(bush_2, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         } else if (text_select == 6) {
             DrawTexturePro(bush_3, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
-        } else if (text_select == 7) {
-            DrawTexturePro(bush_4, Rectangle{0, 200, 555, 379},position, Vector2{0, 0}, 0.0f, WHITE);
         }
         has_texture = true;
     }
@@ -93,22 +102,22 @@ struct Cell{
 
 void movement() {
         if(y > 1)
-            if(board[y-2][x-1]==0)
+            if(board[y-2][x-1] == 0)
                 if (IsKeyPressed(KEY_W)){
                     y -= 1;
                 }
         if(y < mapSize)
-            if(board[y][x-1]==0)
+            if(board[y][x-1] == 0)
             if(IsKeyPressed(KEY_S)) {
                 y += 1;
             }
         if(x < mapSize)
-            if(board[y-1][x]==0)
+            if(board[y-1][x] == 0)
             if(IsKeyPressed(KEY_D)){
                 x += 1;
             }
         if(x > 1)
-            if(board[y-1][x-2]==0)
+            if(board[y-1][x-2] == 0)
             if (IsKeyPressed(KEY_A)) {
                 x -= 1;
             }
@@ -116,7 +125,7 @@ void movement() {
 
 std::map<std::pair<int,int>, Cell> cell_Instance;
 
-void InitiateBoard(Texture2D grass,Texture2D stone_1,Texture2D stone_2,Texture2D stone_3,Texture2D bush_1,Texture2D bush_2,Texture2D bush_3,Texture2D bush_4) {
+void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3) {
     Rectangle image{0, 0, 2000, 2000};
     DrawTexturePro(grass,image,Rectangle{0,0,screenWidth,screenHeight},Vector2{0,0},0.0f,WHITE);
     seed=1000;
@@ -140,8 +149,8 @@ void InitiateBoard(Texture2D grass,Texture2D stone_1,Texture2D stone_2,Texture2D
             }
 
             
-            if(cell_Instance[{i,j}].free==false && cell_Instance[{i,j}].has_texture==false && cell_Instance[{i,j}].character==false){
-                cell_Instance[{i,j}].give_texture(stone_1,stone_2,stone_3,bush_1,bush_2,bush_3,bush_4);
+            if(cell_Instance[{i,j}].free == false && cell_Instance[{i,j}].has_texture == false && cell_Instance[{i,j}].character == false){
+                cell_Instance[{i,j}].give_texture(stone_1, stone_2, bush_1, bush_2, bush_3);
             }
             seed++;
         }
