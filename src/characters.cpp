@@ -7,15 +7,15 @@
 #include "map.hpp"
 #include "game.hpp"
 #include "Observer.hpp"
-
-
-
+#include "functions.hpp"
 
 Observer events;
+
+bool turn = true;
+
 struct Character:Observer
 {  
     int pos_x,pos_y;
-    bool turn;
     int hp;
     int dmg;
     float fr_x=35,fr_y=1;
@@ -56,55 +56,45 @@ struct Hero :Character {
     Hero(int a, int b, Color color){
         pos_x = a;
         pos_y = b;
-        turn = true;
         team = color;
-    } 
+    }
     void movement() {
+        if(turn){
         if(pos_y > 1)
             if(board[pos_y-2][pos_x-1] == 0)
                 if (IsKeyPressed(KEY_W)){
                     pos_y -= 1;
+                    fr_x = 35;
+                    fr_y = 520;
                     turn = false;
                 }
         if(pos_y < mapSize)
             if(board[pos_y][pos_x-1] == 0)
                 if(IsKeyPressed(KEY_S)) {
                     pos_y += 1;
+                    fr_x = 35;
+                    fr_y = 1;
                     turn = false;
                 }
+        }
+        if(turn){
         if(pos_x < mapSize)
             if(board[pos_y-1][pos_x] == 0)
                 if(IsKeyPressed(KEY_D)){
                     pos_x += 1;
+                    fr_x = 900;
+                    fr_y = 520;
                     turn = false;
                 }
         if(pos_x > 1)
             if(board[pos_y-1][pos_x-2] == 0)
                 if (IsKeyPressed(KEY_A)) {
                     pos_x -= 1;
+                    fr_x = 900;
+                    fr_y = 1;
                     turn = false;
                 }
     }
-    void animation(){
-        
-        if(IsKeyPressed(KEY_W)){
-            fr_x = 35;
-            fr_y = 520;
-        }
-        if(IsKeyPressed(KEY_S)){
-            fr_x = 35;
-            fr_y = 1;
-        }
-
-        if(IsKeyPressed(KEY_D)){
-            fr_x = 900;
-            fr_y = 520;
-        }
-
-        if(IsKeyPressed(KEY_A)){
-            fr_x = 900;
-            fr_y = 1;
-        }
     }
     
     void create(float x_cellSize, float y_cellSize, Texture2D hiro){
@@ -112,7 +102,6 @@ struct Hero :Character {
         //currentPosition(x_cellSize, y_cellSize, team);
         //DrawText(TextFormat("%f", pos_x),1 ,1 ,50 ,PINK);
         DrawTexture(x_cellSize, y_cellSize, hiro);
-        animation();
         events.add("movement_player", [=](){movement();});
         events.execute("movement_player");
     }
@@ -133,7 +122,6 @@ struct Monster :Character {
     Monster(int a, int b, Color color){
         pos_x = a;
         pos_y = b;
-        turn = false;
         team = color;
     }
 
@@ -141,7 +129,44 @@ struct Monster :Character {
     void create(float x_cellSize, float y_cellSize, Texture2D hiro){
         currentPosition(x_cellSize, y_cellSize, team);
         DrawTexture(x_cellSize, y_cellSize, hiro);
+        // if(IsKeyPressed(KEY_F))
+        //     turn = true;
+        movement();
+        
     }
+
+    void movement(){
+        if(!turn){
+            if(pos_y < mapSize)
+                if(pos_y + 2 == y || pos_y < y){
+                    pos_y +=  1;
+                    turn = true;
+                }
+        }
+        if(!turn){
+            if(pos_x < mapSize)
+                if(pos_y == y - 2 || pos_x < x){
+                    pos_x +=  1;
+                    turn = true;
+                }
+        }
+        if(!turn){
+            if(pos_y > 1)
+                if(pos_y > y + 1 || pos_x == x){
+                    pos_y -=  1;
+                    turn = true;
+                }
+        }
+        if(!turn){
+            if(pos_x > 1)
+                if(pos_x > x){
+                    pos_x -=  1;
+                    turn = true;
+                }
+            }
+        
+    }
+    
     //texture//
 
     //////////
@@ -156,7 +181,7 @@ struct Monster :Character {
 
 
 Hero Hiro(player_position.x, player_position.y, GREEN);
-Monster Enemy(2, 4, RED);
+Monster Enemy(4, 4, RED);
 
 
 

@@ -3,24 +3,10 @@
 #include "map.hpp"
 #include "characters.hpp"
 #include "game.hpp"
+#include "functions.hpp"
 
 float screenWidth = 1280;
 float screenHeight = 780;
-
-//fullscreen
-void toggleFullscreen(){
-    if(IsKeyPressed(KEY_F11)){
-        ToggleFullscreen();
-    }
-    if(IsWindowFullscreen()){
-        screenWidth = GetRenderWidth();
-        screenHeight = GetRenderHeight();
-    }
-    else{
-        screenWidth = 1280;
-        screenHeight = 780;
-    }
-}
 
 int main(void)
 {
@@ -49,6 +35,7 @@ int main(void)
         InitiateBoard(grass, stone_1, stone_2, bush_1, bush_2, bush_3);
         ModifyBoard();
         Char(x_cellSize,y_cellSize,hiro);
+        wait(2.0f);
         ClearBackground(WHITE);
         EndDrawing();
     }

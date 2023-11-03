@@ -9,3 +9,5 @@ extern float y_cellSize;
 extern const int mapSize;
 extern Vector2 player_position;
 extern int board[7][7];
+extern int x;
+extern int y;

@@ -10,18 +10,18 @@
 #include "characters.hpp"
 #include "Observer.hpp"
 
-const int mapSize=7;
+const int mapSize = 7;
 
-int seed=1000;
+int seed = 1000;
 
-float x_cellSize =screenWidth/mapSize;
+float x_cellSize =screenWidth / mapSize;
 
-float y_cellSize=screenHeight/mapSize;
+float y_cellSize=screenHeight / mapSize;
 
-Vector2 player_position={5,4};
+Vector2 player_position={5, 5};
 
 
-int x=5,y=4;
+int x = 5, y = 5;
 
 //                     0 ,1 ,2 ,3 ,4 ,5 ,6
 int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
@@ -46,36 +46,35 @@ int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
 
 struct Cell{
 
-    
-
     int position_x, position_y;
 
-    bool free,character=false;
+    bool free , character = false;
 
-    bool has_texture=false;
+    bool has_texture = false;
 
-    Cell(int y=0,int x=0,bool f=true,bool h=false):position_x(x),position_y(y),free(f),has_texture(h){}
+    Cell(int y = 0, int x = 0, bool f = true, bool h = false):position_x(x), position_y(y), free(f), has_texture(h){}
 
     void show_position(){
-        DrawText(TextFormat("%i",position_x),position_x * x_cellSize, position_y * y_cellSize,50,PINK);
-        DrawText(TextFormat(":%i",position_y),position_x * x_cellSize+30, position_y * y_cellSize,50,PINK);
+        DrawText(TextFormat("%i",position_x + 1),position_x * x_cellSize, position_y * y_cellSize, 50 ,PINK);
+        DrawText(TextFormat(":%i",position_y + 1),position_x * x_cellSize + 30, position_y * y_cellSize, 50 ,PINK);
     }
 
-    void ocupied(int x,int y){
-        if(position_x==x && position_y==y)
+    void ocupied(int x, int y){
+        if(position_x == x && position_y == y)
             board[y][x] = 1;
     }
 
-    void unocupied(int x,int y){
-        if(position_x==x && position_y==y)
+    void unocupied(int x, int y){
+        if(position_x == x && position_y == y)
             board[y][x] = 0;
     }
 
-    bool check_free(int x,int y){
+    bool check_free(int x, int y){
         if(x == position_x && y == position_y)
             return free;
         return false;
     }
+
     void give_texture(Texture2D stone_1, Texture2D stone_2, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3) {
         Rectangle position {position_x * x_cellSize, position_y * y_cellSize, position_x + 1 * x_cellSize, position_y + 1 * y_cellSize};
         if (has_texture) {
@@ -101,6 +100,7 @@ struct Cell{
 
 
 void movement() {
+    if(turn){
         if(y > 1)
             if(board[y-2][x-1] == 0)
                 if (IsKeyPressed(KEY_W)){
@@ -108,19 +108,22 @@ void movement() {
                 }
         if(y < mapSize)
             if(board[y][x-1] == 0)
-            if(IsKeyPressed(KEY_S)) {
-                y += 1;
+                if(IsKeyPressed(KEY_S)) {
+                    y += 1;
             }
+    }
+    if(turn){
         if(x < mapSize)
             if(board[y-1][x] == 0)
-            if(IsKeyPressed(KEY_D)){
+                if(IsKeyPressed(KEY_D)){
                 x += 1;
             }
         if(x > 1)
             if(board[y-1][x-2] == 0)
-            if (IsKeyPressed(KEY_A)) {
+                if (IsKeyPressed(KEY_A)) {
                 x -= 1;
             }
+    }
 }
 
 std::map<std::pair<int,int>, Cell> cell_Instance;
@@ -135,17 +138,17 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
             DrawRectangleLines(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
 
             srand(seed); 
-            cell_Instance[{i,j}]=Cell(i, j, true,false);
+            cell_Instance[{i,j}] = Cell(i, j, true, false);
 
-            if(board[i][j]==1){
+            if(board[i][j] == 1){
                 cell_Instance[{i,j}].free=false;
             }
-            else if(board[i][j]==0)
+            else if(board[i][j] == 0)
                 cell_Instance[{i,j}].free=true;
             
-            if(x==j+1&&y==i+1){
-                cell_Instance[{i,j}].free=false;
-                cell_Instance[{i,j}].character=true;
+            if(x == j + 1 && y == i + 1){
+                cell_Instance[{i,j}].free = false;
+                cell_Instance[{i,j}].character = true;
             }
 
             
@@ -159,6 +162,7 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
     }
     movement();
 }
+
 void ModifyBoard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
