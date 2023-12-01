@@ -9,6 +9,7 @@
 #include "game.hpp"
 #include "characters.hpp"
 #include "Observer.hpp"
+#include "functions.hpp"
 
 const int mapSize = 7;
 
@@ -24,13 +25,13 @@ Vector2 player_position={5, 5};
 int x = 5, y = 5;
 
 //                     0 ,1 ,2 ,3 ,4 ,5 ,6
-int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*1*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+int board[7][7]={/*0*/{0 ,0 ,1 ,1 ,0 ,0 ,0},
+                 /*1*/{0 ,1 ,0 ,0 ,1 ,0 ,0},
                  /*2*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*3*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*4*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*5*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*6*/{0 ,0 ,0 ,0 ,0 ,0 ,0}
+                 /*3*/{0 ,1 ,0 ,0 ,0 ,0 ,0},
+                 /*4*/{0 ,1 ,0 ,0 ,0 ,0 ,0},
+                 /*5*/{0 ,1 ,0 ,1 ,0 ,0 ,0},
+                 /*6*/{0 ,1 ,0 ,0 ,0 ,0 ,0}
                 };
 
 // void randomize_board(){
@@ -105,23 +106,27 @@ void movement() {
             if(board[y-2][x-1] == 0)
                 if (IsKeyPressed(KEY_W)){
                     y -= 1;
+                    turn=false;
                 }
         if(y < mapSize)
             if(board[y][x-1] == 0)
                 if(IsKeyPressed(KEY_S)) {
                     y += 1;
-            }
+                    turn=false;
+                }
     }
     if(turn){
         if(x < mapSize)
             if(board[y-1][x] == 0)
                 if(IsKeyPressed(KEY_D)){
-                x += 1;
-            }
+                    x += 1;
+                    turn=false;
+                }
         if(x > 1)
             if(board[y-1][x-2] == 0)
                 if (IsKeyPressed(KEY_A)) {
                 x -= 1;
+                turn=false;
             }
     }
 }
@@ -160,13 +165,13 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
     
     
     }
-    movement();
+    
 }
 
 void ModifyBoard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
-
+            if(turn)
             if(cell_Instance[{i,j}].free){
                 cell_Instance[{i,j}].show_position();
             }
@@ -174,4 +179,5 @@ void ModifyBoard(){
 
         }
     }
+    movement();
 }

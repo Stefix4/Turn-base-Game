@@ -1,4 +1,8 @@
 #include <raylib.h>
+#include <future>
+#include <chrono>
+#include <thread>
+
 
 #include "map.hpp"
 #include "characters.hpp"
@@ -9,11 +13,12 @@ float screenWidth = 1280;
 float screenHeight = 780;
 
 int main(void)
-{
+{   
+    
 
     //initialling the window
     InitWindow(screenWidth,screenHeight, "Turn-base-Game");
-    SetTargetFPS(144);
+    SetTargetFPS(30);
     //SetWindowMinSize(screenWidth,screenHeight);
     
     //declaring images/textures
@@ -35,7 +40,6 @@ int main(void)
         InitiateBoard(grass, stone_1, stone_2, bush_1, bush_2, bush_3);
         ModifyBoard();
         Char(x_cellSize,y_cellSize,hiro);
-        wait(2.0f);
         ClearBackground(WHITE);
         EndDrawing();
     }

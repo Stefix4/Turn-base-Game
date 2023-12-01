@@ -2,6 +2,7 @@
 #include <functional>
 #include <string>
 #include <map>
+#include <thread>
 
 #include "characters.hpp"
 #include "map.hpp"
@@ -24,7 +25,7 @@ struct Character:Observer
     
     void currentPosition(float x_cellSize, float y_cellSize, Color team){
         DrawRectangleV(getPosition(pos_x, pos_y, x_cellSize, y_cellSize),Vector2{x_cellSize, y_cellSize}, team);
-    }
+     }
     void DrawTexture(float x_cellsize, float y_cellsize, Texture2D texture){
         Rectangle image{fr_x, fr_y, 480, 540};
         DrawTexturePro(texture, image, getSource(x_cellSize,y_cellSize), Vector2{0, 0}, 0.0f, WHITE);
@@ -42,11 +43,6 @@ struct Character:Observer
         return coords;
     }
     
-    Vector2 board_position(float x, float y){   
-        return Vector2{x , y};
-    }
-
-    
 };
 
 
@@ -58,57 +54,35 @@ struct Hero :Character {
         pos_y = b;
         team = color;
     }
-    void movement() {
-        if(turn){
-        if(pos_y > 1)
-            if(board[pos_y-2][pos_x-1] == 0)
-                if (IsKeyPressed(KEY_W)){
-                    pos_y -= 1;
-                    fr_x = 35;
-                    fr_y = 520;
-                    turn = false;
-                }
-        if(pos_y < mapSize)
-            if(board[pos_y][pos_x-1] == 0)
-                if(IsKeyPressed(KEY_S)) {
-                    pos_y += 1;
-                    fr_x = 35;
-                    fr_y = 1;
-                    turn = false;
-                }
+
+    void Update_Texture(){
+        if(x>pos_x){
+            pos_x += 1;
+            fr_x = 900;
+            fr_y = 520;
         }
-        if(turn){
-        if(pos_x < mapSize)
-            if(board[pos_y-1][pos_x] == 0)
-                if(IsKeyPressed(KEY_D)){
-                    pos_x += 1;
-                    fr_x = 900;
-                    fr_y = 520;
-                    turn = false;
-                }
-        if(pos_x > 1)
-            if(board[pos_y-1][pos_x-2] == 0)
-                if (IsKeyPressed(KEY_A)) {
-                    pos_x -= 1;
-                    fr_x = 900;
-                    fr_y = 1;
-                    turn = false;
-                }
-    }
+        if(x<pos_x){
+            pos_x -= 1;
+            fr_x = 900;
+            fr_y = 1;
+        }
+        if(y>pos_y){
+            pos_y += 1;
+            fr_x = 35;
+            fr_y = 1;
+        }
+        if(y<pos_y){
+            pos_y -= 1;
+            fr_x = 35;
+            fr_y = 520;
+        }
+
     }
     
     void create(float x_cellSize, float y_cellSize, Texture2D hiro){
-        
-        //currentPosition(x_cellSize, y_cellSize, team);
-        //DrawText(TextFormat("%f", pos_x),1 ,1 ,50 ,PINK);
         DrawTexture(x_cellSize, y_cellSize, hiro);
-        events.add("movement_player", [=](){movement();});
-        events.execute("movement_player");
+        Update_Texture();
     }
-    //texture//
-    
-    //////////
-
     //attack//
 
     /////////
@@ -129,8 +103,7 @@ struct Monster :Character {
     void create(float x_cellSize, float y_cellSize, Texture2D hiro){
         currentPosition(x_cellSize, y_cellSize, team);
         DrawTexture(x_cellSize, y_cellSize, hiro);
-        // if(IsKeyPressed(KEY_F))
-        //     turn = true;
+
         movement();
         
     }
@@ -166,6 +139,7 @@ struct Monster :Character {
             }
         
     }
+
     
     //texture//
 
@@ -188,5 +162,6 @@ Monster Enemy(4, 4, RED);
 void Char(int x_cellSize, int y_cellSize, Texture2D hiro){
     Hiro.create(x_cellSize, y_cellSize, hiro);
     Enemy.create(x_cellSize, y_cellSize, hiro);
+
 }
 
