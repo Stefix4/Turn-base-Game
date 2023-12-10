@@ -37,7 +37,7 @@ void wait(float wait_time){
 bool Check_Turn(){
     std::this_thread::sleep_for(std::chrono::seconds(2));
     return turn;
-}
+}                   
 void check_movement(bool& turn){
     
 }

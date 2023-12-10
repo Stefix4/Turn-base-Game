@@ -25,25 +25,14 @@ Vector2 player_position={5, 5};
 int x = 5, y = 5;
 
 //                     0 ,1 ,2 ,3 ,4 ,5 ,6
-int board[7][7]={/*0*/{0 ,0 ,1 ,1 ,0 ,0 ,0},
-                 /*1*/{0 ,1 ,0 ,0 ,1 ,0 ,0},
-                 /*2*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*3*/{0 ,1 ,0 ,0 ,0 ,0 ,0},
-                 /*4*/{0 ,1 ,0 ,0 ,0 ,0 ,0},
-                 /*5*/{0 ,1 ,0 ,1 ,0 ,0 ,0},
-                 /*6*/{0 ,1 ,0 ,0 ,0 ,0 ,0}
+int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*1*/{0 ,1 ,0 ,1 ,0 ,0 ,0},
+                 /*2*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
+                 /*3*/{0 ,1 ,0 ,1 ,0 ,0 ,0},
+                 /*4*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*5*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*6*/{0 ,0 ,0 ,0 ,0 ,0 ,0}
                 };
-
-// void randomize_board(){
-//     int k = mapSize * 2 + 1;
-//     while(k){
-//     for(int i = 0; i < mapSize; i++)
-//         for(int j = 0; j < mapSize; j++){
-            
-//     }
-
-// }
-// }
 
 struct Cell{
 
@@ -97,6 +86,7 @@ struct Cell{
         }
         has_texture = true;
     }
+    
 };
 
 
@@ -132,6 +122,15 @@ void movement() {
 }
 
 std::map<std::pair<int,int>, Cell> cell_Instance;
+
+void randomize_board(int seed,int n,Texture2D stone_1, Texture2D stone_2, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3){
+    srand(1);
+    if(n>0){
+        cell_Instance[{rand()%7+0,rand()%7+0}].give_texture(stone_1, stone_2, bush_1, bush_2, bush_3);
+        cell_Instance[{rand()%7+0,rand()%7+0}].free=false;
+        n--;
+    }
+}
 
 void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3) {
     Rectangle image{0, 0, 2000, 2000};
