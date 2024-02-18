@@ -17,7 +17,7 @@ int seed = 1000;
 
 float x_cellSize =screenWidth / mapSize;
 
-float y_cellSize=screenHeight / mapSize;
+float y_cellSize = screenHeight / mapSize;
 
 Vector2 player_position = {2, 4};
 
@@ -128,7 +128,6 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
             }
-
             
             if(cell_Instance[{i,j}].free == false && cell_Instance[{i,j}].has_texture == false && cell_Instance[{i,j}].character == false){
                 cell_Instance[{i,j}].give_texture(stone_1, stone_2, bush_1, bush_2, bush_3);
@@ -136,10 +135,10 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
             seed++;
         }
     
-    
     }
     
 }
+
 
 void movement_hiro() {
     if(turn > 0){
