@@ -29,7 +29,7 @@ int x = 2, y = 4, a = 2, b = 2;
 //                     0 ,1 ,2 ,3 ,4 ,5 ,6
 int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*1*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
-                 /*2*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*2*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
                  /*3*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*4*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*5*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
@@ -117,14 +117,16 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
             if(board[i][j] == 1){
                 cell_Instance[{i,j}].free=false;
             }
-            else if(board[i][j] == 0)
+            else if(board[i][j] == 0){
                 cell_Instance[{i,j}].free=true;
+                cell_Instance[{i,j}].character = false;
+            }
             
             if(x == j + 1 && y == i + 1){
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
             }
-            if(a == j + 1 && b == i + 1){
+            if((a == j + 1 && b == i + 1) && isAlive){
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
             }
@@ -140,68 +142,6 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
 }
 
 
-void movement_hiro() {
-    if(turn > 0){
-        if(y > 1)
-            if(board[y-2][x-1] == 0)
-                if (IsKeyPressed(KEY_W)){
-                    y -= 1;
-                    turn--;
-                }
-        if(y < mapSize)
-            if(board[y][x-1] == 0)
-                if(IsKeyPressed(KEY_S)) {
-                    y += 1;
-                    turn--;
-                }
-}
-    if(turn > 0){
-        if(x < mapSize)
-            if(board[y-1][x] == 0)
-                if(IsKeyPressed(KEY_D)){
-                    x += 1;
-                    turn--;
-                }
-    if(x > 1)
-        if(board[y-1][x-2] == 0)
-            if (IsKeyPressed(KEY_A)) {
-                x -= 1;
-                turn--;
-            }
-    }
-}
-// a = x; b = y
-void movement_monster(){
-    if(turn <= 0){
-        if(b < mapSize && board[b][a-1] == 0)
-            if(b + 1 < y){
-                b +=  1;
-                turn++;
-            }
-    }
-    if(turn <= 0){
-        if(a < mapSize && board[b-1][a] == 0)
-            if(a + 1 < x){
-                a +=  1;
-                turn++;
-            }
-    }
-    if(turn <= 0){
-        if(b > 1 && board[b-2][a-1] == 0)
-            if(b > y + 1){
-                b -=  1;
-                turn++;
-            }
-    }
-    if(turn <= 0){
-        if(a > 1 && board[b-1][a-2] == 0)
-            if(a > x + 1){
-                a -=  1;
-                turn++;
-            }
-    }
-}
-
 void ModifyBoard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
@@ -211,6 +151,27 @@ void ModifyBoard(){
                 }
         }
     }
-    movement_hiro();
-    movement_monster();
+}
+void Updateboard(){
+    for (int i = 0; i < mapSize; i++) {
+        for (int j = 0; j < mapSize; j++) {
+            if(board[i][j] == 1){
+                cell_Instance[{i,j}].free=false;
+            }
+            else if(board[i][j] == 0){
+                cell_Instance[{i,j}].free=true;
+                cell_Instance[{i,j}].character = false;
+            }
+            
+            if(x == j + 1 && y == i + 1){
+                cell_Instance[{i,j}].free = false;
+                cell_Instance[{i,j}].character = true;
+            }
+            if(a == j + 1 && b == i + 1){
+                cell_Instance[{i,j}].free = false;
+                cell_Instance[{i,j}].character = true;
+            }
+
+        }
+    }
 }

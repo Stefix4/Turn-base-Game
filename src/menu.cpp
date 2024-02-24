@@ -25,6 +25,7 @@ void menus(Texture2D hiro,Texture2D background, Texture2D grass, Texture2D stone
         InitiateBoard(grass, stone_1, stone_2, bush_1, bush_2, bush_3);
         Char(x_cellSize,y_cellSize,hiro);
         ModifyBoard();
+        Updateboard();
     }
     else if(menuStateSelected == 2){
         DrawTexturePro(grass,image,Rectangle{0,0,screenWidth,screenHeight},Vector2{0,0},0.0f,WHITE);
