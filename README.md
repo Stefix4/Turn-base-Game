@@ -10,11 +10,13 @@ git clone https://github.com/Stefix4/Turn-base-Game.git
 
 > [!NOTE]
 > #### Open Visual Studio code and press: **Ctrl+Shift+P** and search for ```>Preferences: Open User Settings (JSON) ```
-> #### Add:
->```{
+
+-> #### Add:
+  ```
+  {
   "terminal.integrated.profiles.windows": {
     "MSYS2 MinGW64": {
-      "path": "\\msys64\\usr\\bin\\bash.exe",
+      "path": "D:\\msys64\\usr\\bin\\bash.exe",
       "args": ["-l", "-i"],
       "env": {
         "MSYSTEM": "MINGW64",
@@ -25,6 +27,7 @@ git clone https://github.com/Stefix4/Turn-base-Game.git
   "terminal.integrated.defaultProfile.windows": "MSYS2 MinGW64",
   "makefile.configureOnOpen": true
 }
+```
 
 ## Building & Running (cross-platform) ✅
 
