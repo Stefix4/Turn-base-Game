@@ -9,9 +9,9 @@ git clone https://github.com/Stefix4/Turn-base-Game.git
 ```
 
 > [!NOTE]
-> #### Open Visual Studio code and press: **Ctrl+Shift+P** and search for ```>Preferences: Open User Settings (JSON) ```
+> #### After cloneing the repository, open Visual Studio code and press: **Ctrl+Shift+P** and search for ```>Preferences: Open User Settings (JSON) ```
 
--> #### Add:
+-> And add:
   ```
   {
   "terminal.integrated.profiles.windows": {
@@ -26,7 +26,7 @@ git clone https://github.com/Stefix4/Turn-base-Game.git
   },
   "terminal.integrated.defaultProfile.windows": "MSYS2 MinGW64",
   "makefile.configureOnOpen": true
-}
+  }
 ```
 
 ## Building & Running (cross-platform) ✅
