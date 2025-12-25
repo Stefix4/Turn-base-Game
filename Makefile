@@ -18,7 +18,19 @@ SRC = src/game.cpp \
       src/map.cpp \
       src/characters.cpp \
       src/functions.cpp \
-      src/menu.cpp
+      src/menu.cpp \
+	  src/logging.cpp
+
+# Log files
+LOG_DIR := logs
+BUILD_LOG := $(LOG_DIR)/build.log
+ERROR_LOG := $(LOG_DIR)/build_errors.log
+
+.PHONY: logs
+logs:
+	@mkdir -p $(LOG_DIR)
+	@touch $(BUILD_LOG)
+	@touch $(ERROR_LOG)
 
 # Detect OS in a robust way (Windows_NT, MINGW, MSYS, CYGWIN, Linux)
 UNAME_S := $(shell uname -s 2>/dev/null)
@@ -53,6 +65,7 @@ endif
 
 # Diagnostic target to inspect raylib availability and warn about Windows builds
 check-raylib:
+	@echo ""
 	@echo "Checking for raylib..."
 	@if command -v pkg-config >/dev/null 2>&1 && pkg-config --exists raylib ; then \
 		echo "Using system raylib: $$(pkg-config --modversion raylib)"; \
@@ -69,6 +82,7 @@ check-raylib:
 # Guard target: detect Windows-built libraylib and show a clear error (used by the linker recipe)
 .PHONY: check-windows-libs
 check-windows-libs:
+	@echo ""
 	@sh -c 'if [ -f lib/libraylib.a ] && strings lib/libraylib.a 2>/dev/null | grep -Ei "MZ|__imp_|__mingw" -m1 >/dev/null 2>&1; then printf "\nERROR: bundled lib/libraylib.a appears to contain Windows (MinGW/PE) objects and cannot be linked on Linux.\n\nFixes:\n  1) Install and use system raylib: sudo apt install libraylib-dev && make USE_SYSTEM_RAYLIB=1\n  2) Remove or move Windows-built files from lib/: mkdir -p backup_windows && mv lib/* backup_windows\n\nRun \"make check-raylib\" for more diagnostics.\n"; exit 1; fi'
 
 # Platform directory name (used for object output)
@@ -76,13 +90,16 @@ PLAT := $(if $(filter 1,$(WINDOWS)),windows,linux)
 # Build object files into build/$(PLAT)/
 OBJ := $(patsubst src/%.cpp, build/$(PLAT)/%.o, $(SRC))
 
-all: $(TARGET)
+all:logs $(TARGET)
 
 $(TARGET): $(if $(filter 0,$(WINDOWS)),backup-windows-libs) $(OBJ)
+	@echo ""
 	@echo "Building for $(if $(filter 1,$(WINDOWS)),Windows,Linux) (USE_SYSTEM_RAYLIB=$(USE_SYSTEM_RAYLIB))"
 ifeq ($(WINDOWS),1)
+	@echo ""
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)
 else
+	@echo ""
 	@# Use system raylib only if explicitly requested via USE_SYSTEM_RAYLIB=1
 	@if [ "$(USE_SYSTEM_RAYLIB)" = "1" ]; then \
 		echo "Using system raylib (pkg-config)"; \
@@ -101,6 +118,7 @@ endif
 
 .PHONY: backup-windows-libs
 backup-windows-libs:
+	@echo ""
 	@echo "Building for $(if $(filter 1,$(WINDOWS)),Windows,Linux) (USE_SYSTEM_RAYLIB=$(USE_SYSTEM_RAYLIB))"
 	@mkdir -p backup_windows
 	@sh -c 'if [ -d lib ] && [ "$$(ls -A lib 2>/dev/null)" ]; then \
@@ -113,35 +131,64 @@ backup-windows-libs:
 
 # Pattern rule: compile source files into platform-specific build folder
 build/$(PLAT)/%.o: src/%.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	@$(MKDIR_P) $(dir $@)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-run: $(TARGET)
+run: logs $(TARGET)
+	@echo ""
 	@echo "Running $(TARGET)"
 ifeq ($(WINDOWS),1)
 	@$(TARGET)
 else
+	@echo ""
 	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET) || \
 	 (echo "Failed to start $(TARGET). Showing shared library info:" && ldd $(TARGET))
+	 @echo ""
 endif
 
 clean:
 ifeq ($(WINDOWS),0)
+	@echo ""
 	@echo "Linux clean: restoring backup_windows -> lib"
-	@sh -c 'if [ -d backup_windows ] && [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
+	@if [ -d backup_windows ] && [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
 		echo ">>> Moving files from backup_windows/ to lib/"; \
 		mkdir -p lib; \
 		mv backup_windows/* lib/; \
 		rm -rf backup_windows; \
+		echo "Restoration complete"; \
 	else \
-		echo ">>> backup_windows/ is empty or missing, nothing to restore"; \
-	fi'
-
+		echo "backup_windows/ is empty or missing, nothing to restore"; \
+	fi
 endif
-	@$(RM) build
+ifeq ($(WINDOWS),1)
+	@if [ -d build ]; then \
+		echo ""; \
+		echo "Removing build/ directory"; \
+		rm -rf build; \
+		echo "Removed build/ directory"; \
+	else \
+		echo ""; \
+		echo "build/ directory does not exist, nothing to clean"; \
+	fi
+endif
+	@if [ -d $(LOG_DIR) ] && [ "$$(ls -A $(LOG_DIR) 2>/dev/null)" ]; then \
+		echo "Removing logs/"; \
+		rm -rf $(LOG_DIR); \
+		echo "Removed logs/ directory"; \
+	else \
+		echo "logs/ directory does not exist, nothing to clean"; \
+	fi
+	@# Verification
+	@if [ ! -d build ] && [ ! -d $(LOG_DIR) ]; then \
+		echo ""; \
+		echo "Clean completed"; \
+	else \
+		echo "Some directories could not be removed!"; \
+	fi
 
 
 help:
+	@echo ""
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Common targets:"
@@ -150,4 +197,3 @@ help:
 	@echo "  check-raylib     Verify raylib availability & warn if bundled lib is a Windows build"
 	@echo "  clean            Remove build artifacts"
 	@echo "  help             Show this help"
-

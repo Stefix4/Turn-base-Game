@@ -16,7 +16,7 @@ git clone https://github.com/Stefix4/Turn-base-Game.git
   {
   "terminal.integrated.profiles.windows": {
     "MSYS2 MinGW64": {
-      "path": "D:\\msys64\\usr\\bin\\bash.exe",
+      "path": "your_path\\msys64\\usr\\bin\\bash.exe",
       "args": ["-l", "-i"],
       "env": {
         "MSYSTEM": "MINGW64",

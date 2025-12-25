@@ -9,6 +9,7 @@
 #include "game.hpp"
 #include "functions.hpp"
 #include "menu.hpp"
+#include "logging.hpp"
 
 float screenWidth = 1280;
 float screenHeight = 780;
@@ -18,7 +19,8 @@ MenuState currentMenuState = MenuState::MENU;
 
 int main(void)
 {   
-    
+    SetTraceLogLevel(LOG_ALL);
+    SetTraceLogCallback(RaylibLogCallback);
 
     //initialling the window
     InitWindow(screenWidth,screenHeight, "Turn-base-Game");
