@@ -1,3 +1,79 @@
+# ===========================
+# Output formatting
+# ===========================
+
+LINE      := ----------------------------------------------------------------
+DOUBLE    := ================================================================
+EMPTY     :=
+
+
+define banner_line
+	@echo
+	@echo " $(1) "
+	@echo $(LINE)
+	@echo
+endef
+
+define clean_success
+	@echo
+	@printf '%s\n' '#####################  CLEAN COMPLETED  ########################'
+	@echo
+endef
+
+define clean_error
+	@echo
+	@echo "!!!!!!!!!!!!!!!! CLEAN FAILED !!!!!!!!!!!!!!!!"
+	@echo
+endef
+
+define run_success
+	@echo
+	@printf '%s\n' '#####################  RUN COMPLETED  ##########################'
+	@echo
+endef
+
+define run_error
+	@echo
+	@echo "!!!!!!!!!!!!!!!! RUN FAILED !!!!!!!!!!!!!!!!"
+	@echo
+endef
+
+define build_success
+	@echo
+	@printf '%s\n' '######################  BUILD COMPLETED  #######################'
+	@echo
+endef
+define build_error
+	@echo
+	@echo "!!!!!!!!!!!!!!!!!!!!!!!  BUILD FAILED  !!!!!!!!!!!!!!!!!!!!!!!"
+	@echo
+endef
+
+# ===========================
+
+.PHONY: clean-success clean-error run-success run-error build-success build-error
+
+clean-success:
+	$(call clean_success)
+
+clean-error:
+	$(call clean_error)
+
+run-success:
+	$(call run_success)
+
+run-error:
+	$(call run_error)
+
+build-success:
+	$(call build_success)
+
+build-error:
+	$(call build_error)
+
+# ===========================
+
+
 .PHONY: all clean help run check-raylib
 .DEFAULT_GOAL := all
 
@@ -26,11 +102,53 @@ LOG_DIR := logs
 BUILD_LOG := $(LOG_DIR)/build.log
 ERROR_LOG := $(LOG_DIR)/build_errors.log
 
+
 .PHONY: logs
 logs:
+
 	@mkdir -p $(LOG_DIR)
 	@touch $(BUILD_LOG)
 	@touch $(ERROR_LOG)
+
+.PHONY: ensure-logs
+ensure-logs:
+	$(logs)
+	@if [ ! -d $(LOG_DIR) ]; then \
+		echo "Creating logs directory"; \
+		$(MAKE) -s logs; \
+	fi
+
+.PHONY: ensure-windows-files-backup
+ensure-windows-files-backup:
+ifeq ($(WINDOWS),0)
+	$(backup-windows-libs)
+	@if [ -d backup_windows ] && [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
+		echo ">>> backup_windows present (OK)"; \
+	else \
+		echo ">>> No backup_windows needed"; \
+	fi
+endif
+
+.PHONY: ensure-built
+ensure-built:
+	@if [ -f $(TARGET) ]; then \
+		echo ">>> Build already exists, skipping build"; \
+	else \
+		echo ">>> Build missing, compiling now..."; \
+	fi
+
+
+.PHONY: run-exec
+run-exec:
+	@echo ""
+	@echo "Running $(TARGET)"
+ifeq ($(WINDOWS),1)
+	@$(TARGET)
+else
+	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET)
+endif
+
+# ===========================
 
 # Detect OS in a robust way (Windows_NT, MINGW, MSYS, CYGWIN, Linux)
 UNAME_S := $(shell uname -s 2>/dev/null)
@@ -82,7 +200,6 @@ check-raylib:
 # Guard target: detect Windows-built libraylib and show a clear error (used by the linker recipe)
 .PHONY: check-windows-libs
 check-windows-libs:
-	@echo ""
 	@sh -c 'if [ -f lib/libraylib.a ] && strings lib/libraylib.a 2>/dev/null | grep -Ei "MZ|__imp_|__mingw" -m1 >/dev/null 2>&1; then printf "\nERROR: bundled lib/libraylib.a appears to contain Windows (MinGW/PE) objects and cannot be linked on Linux.\n\nFixes:\n  1) Install and use system raylib: sudo apt install libraylib-dev && make USE_SYSTEM_RAYLIB=1\n  2) Remove or move Windows-built files from lib/: mkdir -p backup_windows && mv lib/* backup_windows\n\nRun \"make check-raylib\" for more diagnostics.\n"; exit 1; fi'
 
 # Platform directory name (used for object output)
@@ -90,102 +207,145 @@ PLAT := $(if $(filter 1,$(WINDOWS)),windows,linux)
 # Build object files into build/$(PLAT)/
 OBJ := $(patsubst src/%.cpp, build/$(PLAT)/%.o, $(SRC))
 
-all:logs $(TARGET)
+all:
+ifeq ($(WINDOWS),1)
+	$(call banner_line,                     Windows Build                          )
+	@$(MAKE) -s ensure-built && \
+	$(MAKE) -s build-success || \
+	$(MAKE) -s build-error
+else
+	$(call banner_line,                        Linux Build                           )
+	@$(MAKE) -s ensure-logs
+	@$(MAKE) -s ensure-windows-files-backup
+	@$(MAKE) -s ensure-built && \
+	$(MAKE) -s build-success || \
+	$(MAKE) -s build-error
+endif
+
 
 $(TARGET): $(if $(filter 0,$(WINDOWS)),backup-windows-libs) $(OBJ)
-	@echo ""
-	@echo "Building for $(if $(filter 1,$(WINDOWS)),Windows,Linux) (USE_SYSTEM_RAYLIB=$(USE_SYSTEM_RAYLIB))"
 ifeq ($(WINDOWS),1)
-	@echo ""
 	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)
 else
-	@echo ""
-	@# Use system raylib only if explicitly requested via USE_SYSTEM_RAYLIB=1
 	@if [ "$(USE_SYSTEM_RAYLIB)" = "1" ]; then \
-		echo "Using system raylib (pkg-config)"; \
 		CFLAGS="$$(pkg-config --cflags raylib 2>/dev/null)"; \
 		LIBS="$$(pkg-config --libs raylib 2>/dev/null)"; \
-		if [ -z "$${LIBS}" ]; then \
-			echo "pkg-config did not return raylib libs or pkg-config not installed"; exit 1; \
-		fi; \
 		$(CXX) $(CXXFLAGS) $${CFLAGS} $(OBJ) -o $(TARGET) $${LIBS}; \
 	else \
-		echo "Using bundled libraylib in lib/ (to use system raylib: make USE_SYSTEM_RAYLIB=1)"; \
 		$(MAKE) -s check-windows-libs || exit 1; \
 		$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS); \
 	fi
 endif
 
+
+
 .PHONY: backup-windows-libs
 backup-windows-libs:
 	@echo ""
-	@echo "Building for $(if $(filter 1,$(WINDOWS)),Windows,Linux) (USE_SYSTEM_RAYLIB=$(USE_SYSTEM_RAYLIB))"
-	@mkdir -p backup_windows
-	@sh -c 'if [ -d lib ] && [ "$$(ls -A lib 2>/dev/null)" ]; then \
-		echo ">>> Moving files from lib/ to backup_windows/"; \
+	@echo "Checking if there are Windows-built libraries in lib/ to back up..."
+	@if [ -d lib ] && [ "$$(ls -A lib 2>/dev/null)" ] && [ ! -d backup_windows ]; then \
+		echo ">>> Backing up Windows-built libraries from lib/ to backup_windows/"; \
+		mkdir -p backup_windows; \
 		mv lib/* backup_windows/; \
 	else \
-		echo ">>> lib/ is empty, nothing to move"; \
-	fi'
+		echo ">>> Library backup already handled or not needed"; \
+	fi
+
 
 
 # Pattern rule: compile source files into platform-specific build folder
 build/$(PLAT)/%.o: src/%.cpp
-	@$(MKDIR_P) $(dir $@)
+	@if [ ! -d build ]; then \
+		$(MKDIR_P) $(dir $@); \
+	fi
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-run: logs $(TARGET)
-	@echo ""
-	@echo "Running $(TARGET)"
+.PHONY: run
+run:
+ifeq ($(WINDOWS),0)
+	$(call banner_line,                       Linux Run                              )
+	@$(MAKE) -s ensure-built
+	@$(MAKE) -s ensure-logs
+	@$(MAKE) -s ensure-windows-files-backup
+	@$(MAKE) -s run-exec && \
+	$(MAKE) -s run-success || \
+	$(MAKE) -s run-error
+endif
 ifeq ($(WINDOWS),1)
-	@$(TARGET)
-else
-	@echo ""
-	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET) || \
-	 (echo "Failed to start $(TARGET). Showing shared library info:" && ldd $(TARGET))
-	 @echo ""
+	$(call banner_line,                       Windows Run                            )
+	@$(MAKE) -s ensure-built
+	@$(MAKE) -s run-exec && \
+	$(MAKE) -s run-success || \
+	$(MAKE) -s run-error
 endif
 
 clean:
 ifeq ($(WINDOWS),0)
-	@echo ""
-	@echo "Linux clean: restoring backup_windows -> lib"
-	@if [ -d backup_windows ] && [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
-		echo ">>> Moving files from backup_windows/ to lib/"; \
-		mkdir -p lib; \
-		mv backup_windows/* lib/; \
-		rm -rf backup_windows; \
-		echo "Restoration complete"; \
+	$(call banner_line,                        Linux clean                           )
+	@if [ -d backup_windows ]; then \
+		if [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
+			echo "Restoring backup_windows -> lib"; \
+			echo ">>> Moving files from backup_windows/ to lib/"; \
+			mkdir -p lib; \
+			mv backup_windows/* lib/; \
+			rm -rf backup_windows; \
+			echo "Restoration complete"; \
+			echo ""; \
+		else \
+			echo "backup_windows/ is empty, removing directory"; \
+			rm -rf backup_windows; \
+			echo "Removed backup_windows/ directory"; \
+		fi; \
 	else \
-		echo "backup_windows/ is empty or missing, nothing to restore"; \
+		echo "backup_windows/ directory does not exist, nothing to restore"; \
 	fi
-endif
-ifeq ($(WINDOWS),1)
 	@if [ -d build ]; then \
-		echo ""; \
 		echo "Removing build/ directory"; \
 		rm -rf build; \
-		echo "Removed build/ directory"; \
+		echo ">>> Removed build/ directory"; \
 	else \
 		echo ""; \
-		echo "build/ directory does not exist, nothing to clean"; \
+		echo ">>> build/ directory does not exist, nothing to clean"; \
 	fi
-endif
+	@echo ""
 	@if [ -d $(LOG_DIR) ] && [ "$$(ls -A $(LOG_DIR) 2>/dev/null)" ]; then \
 		echo "Removing logs/"; \
 		rm -rf $(LOG_DIR); \
-		echo "Removed logs/ directory"; \
+		echo ">>> Removed logs/ directory"; \
 	else \
-		echo "logs/ directory does not exist, nothing to clean"; \
+		echo ">>> logs/ directory does not exist, nothing to clean"; \
 	fi
+endif
+ifeq ($(WINDOWS),1)
+	ifeq ($(WINDOWS),0)
+	$(call banner_line,                        Windows clean                        ); \
+	@if [ -d build ]; then \
+		echo "Removing build/ directory"; \
+		rm -rf build; \
+		echo ">>> Removed build/ directory"; \
+	else \
+		echo ""; \
+		echo ">>> build/ directory does not exist, nothing to clean"; \
+	fi
+	@echo ""
+	@if [ -d $(LOG_DIR) ] && [ "$$(ls -A $(LOG_DIR) 2>/dev/null)" ]; then \
+		echo "Removing logs/"; \
+		rm -rf $(LOG_DIR); \
+		echo ">>> Removed logs/ directory"; \
+	else \
+		echo ">>> logs/ directory does not exist, nothing to clean"; \
+	fi
+endif
 	@# Verification
 	@if [ ! -d build ] && [ ! -d $(LOG_DIR) ]; then \
-		echo ""; \
-		echo "Clean completed"; \
-	else \
-		echo "Some directories could not be removed!"; \
-	fi
-
+	echo ""; \
+	echo "Clean successful"; \
+	$(MAKE) -s clean-success; \
+else \
+	echo "Some directories could not be removed!"; \
+	$(MAKE) -s clean-error; \
+	exit 1; \
+fi
 
 help:
 	@echo ""
