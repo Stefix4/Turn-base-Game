@@ -45,13 +45,21 @@ define build_success
 endef
 define build_error
 	@echo
-	@echo "!!!!!!!!!!!!!!!!!!!!!!!  BUILD FAILED  !!!!!!!!!!!!!!!!!!!!!!!"
+	@echo "!!!!!!!!!!!!!!!!!!!!!!!!  BUILD FAILED  !!!!!!!!!!!!!!!!!!!!!!!!"
+	@echo
+endef
+
+define build_hint
+	@echo
+	@echo "👉 Run using the command: make run"
 	@echo
 endef
 
 # ===========================
+# Phony targets 
+# ===========================
 
-.PHONY: clean-success clean-error run-success run-error build-success build-error
+.PHONY: clean-success clean-error run-success run-error build-success build-error build-hint
 
 clean-success:
 	$(call clean_success)
@@ -71,11 +79,18 @@ build-success:
 build-error:
 	$(call build_error)
 
+build-hint:
+	$(call build_hint)
+
 # ===========================
 
 
 .PHONY: all clean help run check-raylib
 .DEFAULT_GOAL := all
+
+# ===========================
+# Config
+# ===========================
 
 # Compiler and flags
 # CXX: compiler command. Change if you prefer clang++ or a different compiler.
@@ -97,60 +112,26 @@ SRC = src/game.cpp \
       src/menu.cpp \
 	  src/logging.cpp
 
+# ===========================
 # Log files
+# ===========================
+
 LOG_DIR := logs
 BUILD_LOG := $(LOG_DIR)/build.log
 ERROR_LOG := $(LOG_DIR)/build_errors.log
 
-
 .PHONY: logs
 logs:
-
 	@mkdir -p $(LOG_DIR)
 	@touch $(BUILD_LOG)
 	@touch $(ERROR_LOG)
 
-.PHONY: ensure-logs
-ensure-logs:
-	$(logs)
-	@if [ ! -d $(LOG_DIR) ]; then \
-		echo "Creating logs directory"; \
-		$(MAKE) -s logs; \
-	fi
-
-.PHONY: ensure-windows-files-backup
-ensure-windows-files-backup:
-ifeq ($(WINDOWS),0)
-	$(backup-windows-libs)
-	@if [ -d backup_windows ] && [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
-		echo ">>> backup_windows present (OK)"; \
-	else \
-		echo ">>> No backup_windows needed"; \
-	fi
-endif
-
-.PHONY: ensure-built
-ensure-built:
-	@if [ -f $(TARGET) ]; then \
-		echo ">>> Build already exists, skipping build"; \
-	else \
-		echo ">>> Build missing, compiling now..."; \
-	fi
-
-
-.PHONY: run-exec
-run-exec:
-	@echo ""
-	@echo "Running $(TARGET)"
-ifeq ($(WINDOWS),1)
-	@$(TARGET)
-else
-	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET)
-endif
-
+# ===========================
+# OS detection
 # ===========================
 
 # Detect OS in a robust way (Windows_NT, MINGW, MSYS, CYGWIN, Linux)
+
 UNAME_S := $(shell uname -s 2>/dev/null)
 WINDOWS := 0
 ifeq ($(OS),Windows_NT)
@@ -207,11 +188,67 @@ PLAT := $(if $(filter 1,$(WINDOWS)),windows,linux)
 # Build object files into build/$(PLAT)/
 OBJ := $(patsubst src/%.cpp, build/$(PLAT)/%.o, $(SRC))
 
+.PHONY: ensure-logs
+ensure-logs:
+	$(logs)
+	@echo "Ensuring logs directory exists..."
+	@if [ ! -d $(LOG_DIR) ]; then \
+		echo ">>> Creating logs directory"; \
+		$(MAKE) -s logs; \
+	else \
+		echo ">>> logs directory already exists, skipping logs"; \
+	fi
+
+.PHONY: ensure-windows-files-backup
+ensure-windows-files-backup:
+ifeq ($(WINDOWS),0)
+	$(backup-windows-libs)
+	@if [ -d backup_windows ] && [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
+		echo ">>> backup_windows present (OK)"; \
+	else \
+		echo ">>> No backup_windows needed"; \
+	fi
+endif
+
+.PHONY: ensure-built
+ensure-built:
+	@echo ""	
+ifeq ($(WINDOWS),1)
+	@echo "Ensuring Windows build exists..."
+	@if [ ! -f $(TARGET) ]; then \
+		echo ">>> Build not found, building..."; \
+		$(MAKE) -s $(TARGET); \
+	else \
+		echo ">>> Build found, skipping build"; \
+	fi
+else
+	@echo "Ensuring Linux build exists..."
+	@if [ ! -f $(TARGET) ]; then \
+		echo ">>> Build not found, building..."; \
+		$(MAKE) -s $(TARGET); \
+	else \
+		echo ">>> Build found, skipping build"; \
+	fi
+endif
+
+.PHONY: run-exec
+run-exec:
+	@echo ""
+	@echo "Running $(TARGET)"
+ifeq ($(WINDOWS),1)
+	@$(TARGET)
+else
+	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET)
+endif
+
+
 all:
 ifeq ($(WINDOWS),1)
 	$(call banner_line,                     Windows Build                          )
+	@$(MAKE) -s ensure-logs
 	@$(MAKE) -s ensure-built && \
-	$(MAKE) -s build-success || \
+	$(MAKE) -s build-success && \
+	$(MAKE) -s build-hint || \
 	$(MAKE) -s build-error
 else
 	$(call banner_line,                        Linux Build                           )
@@ -317,8 +354,7 @@ ifeq ($(WINDOWS),0)
 	fi
 endif
 ifeq ($(WINDOWS),1)
-	ifeq ($(WINDOWS),0)
-	$(call banner_line,                        Windows clean                        ); \
+	$(call banner_line,                        Windows clean                        );
 	@if [ -d build ]; then \
 		echo "Removing build/ directory"; \
 		rm -rf build; \
