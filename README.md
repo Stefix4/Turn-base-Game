@@ -88,6 +88,8 @@ make help
 - Useful debug commands:
   - `make -n` (show commands without running)
   - `make clean && make V=1` or run the g++ link command shown by `make -n` directly to capture full error output
+  - `make check-raylib` — checks for a system `raylib` via pkg-config, or inspects `lib/` and warns if the bundled `libraylib` appears to be a Windows/MinGW build; useful to diagnose link failures on Linux
+  - To build using the system-installed raylib instead of the bundled library, run: `make USE_SYSTEM_RAYLIB=1` (recommended to run `make check-raylib` first)
 
 ## Windows checklist 🪟
 
@@ -104,4 +106,3 @@ Contributions are welcome! If you want to contribute:
 - Create a branch, make small, focused commits, and submit a pull request.
 - Run `make` and `make run` locally to verify changes and include build notes in the PR description if the change requires extra steps.
 
-![image](https://github.com/Stefix4/Turn-base-Game/assets/94927709/df2e3525-7f3c-45f3-bdca-a3c2333ead51)
