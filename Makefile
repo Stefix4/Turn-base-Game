@@ -14,6 +14,13 @@ define banner_line
 	@echo
 endef
 
+define banner_double
+	@echo
+	@echo " $(1) "
+	@echo $(DOUBLE)
+	@echo
+endef
+
 define clean_success
 	@echo
 	@printf '%s\n' '#####################  CLEAN COMPLETED  ########################'
@@ -55,11 +62,25 @@ define build_hint
 	@echo
 endef
 
+define help_banner
+	$(call banner_double,                        Help Menu                             )
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "Common targets:"
+	@echo "  all (default)    Build the project for the current OS"
+	@echo "  run              Build and run the game"
+	@echo "  check-raylib     Verify raylib availability"
+	@echo "                   (warns if bundled lib is a Windows build)"
+	@echo "  clean            Remove build artifacts"
+	@echo "  help             Show this help"
+	$(call banner_double)
+endef
+
 # ===========================
 # Phony targets 
 # ===========================
 
-.PHONY: clean-success clean-error run-success run-error build-success build-error build-hint
+.PHONY: clean-success clean-error run-success run-error build-success build-error build-hint help-banner
 
 clean-success:
 	$(call clean_success)
@@ -81,6 +102,9 @@ build-error:
 
 build-hint:
 	$(call build_hint)
+
+help-banner:
+	$(call help_banner)
 
 # ===========================
 
@@ -199,17 +223,6 @@ ensure-logs:
 		echo ">>> logs directory already exists, skipping logs"; \
 	fi
 
-.PHONY: ensure-windows-files-backup
-ensure-windows-files-backup:
-ifeq ($(WINDOWS),0)
-	$(backup-windows-libs)
-	@if [ -d backup_windows ] && [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
-		echo ">>> backup_windows present (OK)"; \
-	else \
-		echo ">>> No backup_windows needed"; \
-	fi
-endif
-
 .PHONY: ensure-built
 ensure-built:
 	@echo ""	
@@ -244,18 +257,18 @@ endif
 
 all:
 ifeq ($(WINDOWS),1)
-	$(call banner_line,                     Windows Build                          )
-	@$(MAKE) -s ensure-logs
-	@$(MAKE) -s ensure-built && \
+	$(call banner_double,                     Windows Build                          )
+	@$(MAKE) -s ensure-logs && \
+	$(MAKE) -s ensure-built && \
 	$(MAKE) -s build-success && \
 	$(MAKE) -s build-hint || \
 	$(MAKE) -s build-error
 else
-	$(call banner_line,                        Linux Build                           )
-	@$(MAKE) -s ensure-logs
-	@$(MAKE) -s ensure-windows-files-backup
-	@$(MAKE) -s ensure-built && \
-	$(MAKE) -s build-success || \
+	$(call banner_double,                        Linux Build                           )
+	@$(MAKE) -s ensure-logs && \
+	$(MAKE) -s ensure-built && \
+	$(MAKE) -s build-success && \
+	$(MAKE) -s build-hint || \
 	$(MAKE) -s build-error
 endif
 
@@ -274,20 +287,36 @@ else
 	fi
 endif
 
-
-
 .PHONY: backup-windows-libs
 backup-windows-libs:
 	@echo ""
 	@echo "Checking if there are Windows-built libraries in lib/ to back up..."
 	@if [ -d lib ] && [ "$$(ls -A lib 2>/dev/null)" ] && [ ! -d backup_windows ]; then \
-		echo ">>> Backing up Windows-built libraries from lib/ to backup_windows/"; \
+		echo ">>> Backing up the following files:"; \
+		echo "lib"; \
+		set -- lib/*; \
+		count=$$#; \
+		i=1; \
+		for f in "$$@"; do \
+			name=$$(basename "$$f"); \
+			if [ "$$count" -eq 1 ]; then \
+				echo " └─$$name"; \
+			elif [ "$$i" -eq "$$count" ]; then \
+				echo " └─$$name"; \
+			else \
+				echo " ├─$$name"; \
+			fi; \
+			i=$$((i+1)); \
+		done; \
+		echo ""; \
 		mkdir -p backup_windows; \
 		mv lib/* backup_windows/; \
+		echo ">>> Backup complete"; \
+		echo ""; \
 	else \
 		echo ">>> Library backup already handled or not needed"; \
+		echo ""; \
 	fi
-
 
 
 # Pattern rule: compile source files into platform-specific build folder
@@ -300,25 +329,25 @@ build/$(PLAT)/%.o: src/%.cpp
 .PHONY: run
 run:
 ifeq ($(WINDOWS),0)
-	$(call banner_line,                       Linux Run                              )
-	@$(MAKE) -s ensure-built
-	@$(MAKE) -s ensure-logs
-	@$(MAKE) -s ensure-windows-files-backup
-	@$(MAKE) -s run-exec && \
+	$(call banner_double,                        Linux Run                             )
+	@$(MAKE) -s ensure-built && \
+	$(MAKE) -s ensure-logs && \
+	$(MAKE) -s run-exec && \
 	$(MAKE) -s run-success || \
 	$(MAKE) -s run-error
 endif
 ifeq ($(WINDOWS),1)
-	$(call banner_line,                       Windows Run                            )
-	@$(MAKE) -s ensure-built
-	@$(MAKE) -s run-exec && \
+	$(call banner_double,                       Windows Run                            )
+	@$(MAKE) -s ensure-built && \
+	$(MAKE) -s ensure-logs && \
+	$(MAKE) -s run-exec && \
 	$(MAKE) -s run-success || \
 	$(MAKE) -s run-error
 endif
 
 clean:
 ifeq ($(WINDOWS),0)
-	$(call banner_line,                        Linux clean                           )
+	$(call banner_double,                        Linux clean                           )
 	@if [ -d backup_windows ]; then \
 		if [ "$$(ls -A backup_windows 2>/dev/null)" ]; then \
 			echo "Restoring backup_windows -> lib"; \
@@ -354,7 +383,7 @@ ifeq ($(WINDOWS),0)
 	fi
 endif
 ifeq ($(WINDOWS),1)
-	$(call banner_line,                        Windows clean                        );
+	$(call banner_double,                        Windows clean                        );
 	@if [ -d build ]; then \
 		echo "Removing build/ directory"; \
 		rm -rf build; \
@@ -384,12 +413,4 @@ else \
 fi
 
 help:
-	@echo ""
-	@echo "Usage: make [target]"
-	@echo ""
-	@echo "Common targets:"
-	@echo "  all (default)    Build the project for the current OS"
-	@echo "  run              Build and run the game"
-	@echo "  check-raylib     Verify raylib availability & warn if bundled lib is a Windows build"
-	@echo "  clean            Remove build artifacts"
-	@echo "  help             Show this help"
+	@$(MAKE) -s help-banner
