@@ -272,9 +272,6 @@ guard-run:
 		exit 1; \
 	fi
 
-
-
-
 .PHONY: ensure-logs
 ensure-logs:
 	$(logs)
@@ -306,6 +303,9 @@ else
 		echo ">>> Build found, skipping build"; \
 	fi
 endif
+.PHONY: ensure-libs
+ensure-libs:
+	@$(MAKE) -s backup-windows-libs
 
 .PHONY: run-exec
 run-exec:
@@ -337,6 +337,7 @@ ifeq ($(WINDOWS),1)
 else
 	$(call banner_double,                        Linux Build                           )
 	@$(MAKE) -s ensure-logs && \
+	$(MAKE) -s ensure-libs && \
 	$(MAKE) -s ensure-built && \
 	$(MAKE) -s build-success && \
 	$(MAKE) -s build-hint || \
@@ -344,7 +345,7 @@ else
 endif
 
 
-$(TARGET): $(if $(filter 0,$(WINDOWS)),backup-windows-libs) $(OBJ)
+$(TARGET): $(OBJ)
 ifeq ($(WINDOWS),1)
 	$(call log_cmd,$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS))
 else
@@ -386,10 +387,8 @@ backup-windows-libs:
 		mkdir -p backup_windows; \
 		mv lib/* backup_windows/; \
 		echo ">>> Backup complete"; \
-		echo ""; \
 	else \
 		echo ">>> Library backup already handled or not needed"; \
-		echo ""; \
 	fi
 
 
@@ -436,6 +435,7 @@ else
 	$(call banner_double,                         Linux Run                            )
 	@$(MAKE) -s ensure-logs && \
 	$(MAKE) -s guard-run && \
+	$(MAKE) -s ensure-libs && \
 	$(MAKE) -s ensure-built && \
 	$(MAKE) -s run-exec || exit 1; \
 	awk '\
