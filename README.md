@@ -107,6 +107,9 @@ make run
 
 - #### You can simply try to **fix the errors**, and eventually the **`No rule to make target '0'` will stop.**
 
+> [!NOTE]
+> ### To view the errors/fatals/warnings, enter the logs directory and access the build_errors.log file.
+
 -------------------------------------------------------------------------------
 
 ### Compiler silently fails or `make` exits with code 1:
