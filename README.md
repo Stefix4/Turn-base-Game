@@ -64,8 +64,8 @@ make clean
 make help
 ```
 
->[!NOTE]
->On Windows, do not place runtime DLLs (`libgcc_s_seh-1.dll`, `libwinpthread-1.dll`, etc.) in the project root — they can interfere with the compiler. Keep them in your system `/mingw64/bin` or in a dedicated `dist/` folder for distribution. If you see silent compiler failures, check for stray DLLs in the repo root and move them out of the way (e.g., `lib/_backup_dlls/`).
+> [!NOTE]
+> On Windows, do not place runtime DLLs (`libgcc_s_seh-1.dll`, `libwinpthread-1.dll`, etc.) in the project root — they can interfere with the compiler. Keep them in your system `/mingw64/bin` or in a dedicated `dist/` folder for distribution. If you see silent compiler failures, check for stray DLLs in the repo root and move them out of the way (e.g., `lib/_backup_dlls/`).
 
 **Tips**
 - The `Makefile` compiles sources into `build/windows/` or `build/linux/` and links against `lib/`. If you prefer a debug build, set `CXXFLAGS += -g -Og` on the command line or modify the `Makefile`.

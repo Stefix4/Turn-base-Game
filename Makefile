@@ -76,6 +76,12 @@ define help_banner
 	$(call banner_double)
 endef
 
+define log_cmd
+	@echo ">>> Running: $(1)"
+	@$(1) >> $(BUILD_LOG) 2>> $(ERROR_LOG)
+
+endef
+
 # ===========================
 # Phony targets 
 # ===========================
@@ -130,11 +136,10 @@ unexport USE_SYSTEM_RAYLIB
 # You can still opt-in on the make command line: `make USE_SYSTEM_RAYLIB=1`
 
 SRC = src/game.cpp \
-      src/map.cpp \
-      src/characters.cpp \
       src/functions.cpp \
-      src/menu.cpp \
-	  src/logging.cpp
+	  src/characters.cpp \
+	  src/menu.cpp \
+	  src/map.cpp \
 
 # ===========================
 # Log files
@@ -152,6 +157,8 @@ logs:
 	@touch $(BUILD_LOG)
 	@touch $(ERROR_LOG)
 	@touch $(MAP_LOG)
+
+
 
 # ===========================
 # OS detection
@@ -228,7 +235,6 @@ ensure-logs:
 
 .PHONY: ensure-built
 ensure-built:
-	@echo ""	
 ifeq ($(WINDOWS),1)
 	@echo "Ensuring Windows build exists..."
 	@if [ ! -f $(TARGET) ]; then \
@@ -250,11 +256,11 @@ endif
 .PHONY: run-exec
 run-exec:
 	@echo ""
-	@echo "Running $(TARGET)"
+	@echo "Running $(TARGET) ..."
 ifeq ($(WINDOWS),1)
-	@$(TARGET)
+	@$(TARGET) >> $(BUILD_LOG) 2>> $(ERROR_LOG)
 else
-	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET)
+	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET) >> $(BUILD_LOG) 2>> $(ERROR_LOG)
 endif
 
 
@@ -278,15 +284,15 @@ endif
 
 $(TARGET): $(if $(filter 0,$(WINDOWS)),backup-windows-libs) $(OBJ)
 ifeq ($(WINDOWS),1)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)
+	$(call log_cmd,$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS))
 else
 	@if [ "$(USE_SYSTEM_RAYLIB)" = "1" ]; then \
 		CFLAGS="$$(pkg-config --cflags raylib 2>/dev/null)"; \
 		LIBS="$$(pkg-config --libs raylib 2>/dev/null)"; \
-		$(CXX) $(CXXFLAGS) $${CFLAGS} $(OBJ) -o $(TARGET) $${LIBS}; \
+		$(call log_cmd,$(CXX) $(CXXFLAGS) $${CFLAGS} $(OBJ) -o $(TARGET) $${LIBS}); \
 	else \
 		$(MAKE) -s check-windows-libs || exit 1; \
-		$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS); \
+		$(call log_cmd,$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)); \
 	fi
 endif
 
@@ -322,12 +328,16 @@ backup-windows-libs:
 	fi
 
 
-# Pattern rule: compile source files into platform-specific build folder
+# ===========================
+# Compile pattern rule
+# ===========================
+
 build/$(PLAT)/%.o: src/%.cpp
 	@if [ ! -d build ]; then \
 		$(MKDIR_P) $(dir $@); \
 	fi
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@echo "Compiling $< ..."
+	@$(CXX) $(CXXFLAGS) -c $< -o $@ > $(BUILD_LOG) 2>> $(ERROR_LOG)
 
 .PHONY: run
 run:
