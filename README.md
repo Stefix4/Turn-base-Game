@@ -92,9 +92,10 @@ make help
   - The message `No rule to make target '0'`
 is how GNU Make reports this forced stop.
   - It is **not** trying to build a file named 0.
-### **How to fix**
+- ### **How to fix**
 > [!IMPORTANT] 
 > #### **Please fix the errors above before running again.**
+> #### **To view the errors/fatals/warnings, enter the logs directory and access the build_errors.log file.**
 - You can ignore the previous errors and run anyway using:
 ```
 make clean
@@ -106,9 +107,6 @@ make run
 > #### You can continue to ignore the error, but the same error (`No rule to make target '0'`) will come up everytime you try to run the game two consecutively times, until you fix the errors.
 
 - #### You can simply try to **fix the errors**, and eventually the **`No rule to make target '0'` will stop.**
-
-> [!NOTE]
-> #### To view the errors/fatals/warnings, enter the logs directory and access the build_errors.log file.
 
 -------------------------------------------------------------------------------
 
