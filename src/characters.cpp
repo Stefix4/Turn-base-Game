@@ -308,11 +308,8 @@ void Up_Health_Enemy(){
     if(Enemy->hp <= 0){
         Enemy->hp = 0;
         Enemy->isAlive = false;
-        if((a != 0  && b != 0) && Enemy->isAlive == false){
-            TraceLog(LOG_ERROR, "Monster is dead!");
-            TraceLog(LOG_ERROR, "Monster is dead!");
-            TraceLog(LOG_ERROR, "Monster is dead!");
-        }
+        if((a != 0  && b != 0) && Enemy->isAlive == false)
+            TraceLog(LOG_TRACE, "Monster is dead!");
         board[b-1][a-1] = 0;
         a = 0;
         b = 0;
