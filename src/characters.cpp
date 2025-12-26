@@ -291,7 +291,7 @@ void Up_Health_Hiro(){
     if(Hiro.hp <= 0){
         Hiro.hp = 0;
         isAlive = false;
-        //menuStateSelected = 2
+        menuStateSelected = 2;
     }
     DrawText(TextFormat("Health: %d", Hiro.hp), 10, 10, 35, WHITE);
 }
@@ -309,7 +309,7 @@ void Up_Health_Enemy(){
         Enemy->hp = 0;
         Enemy->isAlive = false;
         if((a != 0  && b != 0) && Enemy->isAlive == false)
-            TraceLog(LOG_ERROR, "Monster is dead!");
+            TraceLog(LOG_TRACE, "Monster is dead!");
         board[b-1][a-1] = 0;
         a = 0;
         b = 0;

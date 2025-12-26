@@ -102,6 +102,7 @@ define run_blocked
 	@echo
 	@echo "Note - Ignoring previous errors may lead to unexpected behavior. It's recommended to address the errors first."
 	@echo "     - Check the READNE.md file for troubleshooting tips."
+	@echo
 endef
 
 
@@ -347,15 +348,19 @@ $(TARGET): $(if $(filter 0,$(WINDOWS)),backup-windows-libs) $(OBJ)
 ifeq ($(WINDOWS),1)
 	$(call log_cmd,$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS))
 else
-	@if [ "$(USE_SYSTEM_RAYLIB)" = "1" ]; then \
+	@sh -c '\
+	if [ "$(USE_SYSTEM_RAYLIB)" = "1" ]; then \
 		CFLAGS="$$(pkg-config --cflags raylib 2>/dev/null)"; \
 		LIBS="$$(pkg-config --libs raylib 2>/dev/null)"; \
-		$(call log_cmd,$(CXX) $(CXXFLAGS) $${CFLAGS} $(OBJ) -o $(TARGET) $${LIBS}); \
+		echo ">>> Running: $(CXX) $(CXXFLAGS) $$CFLAGS $(OBJ) -o $(TARGET) $$LIBS" >> $(BUILD_LOG); \
+		$(CXX) $(CXXFLAGS) $$CFLAGS $(OBJ) -o $(TARGET) $$LIBS >> $(BUILD_LOG) 2>> $(ERROR_LOG); \
 	else \
 		$(MAKE) -s check-windows-libs || exit 1; \
-		$(call log_cmd,$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)); \
-	fi
+		echo ">>> Running: $(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)" >> $(BUILD_LOG); \
+		$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS) >> $(BUILD_LOG) 2>> $(ERROR_LOG); \
+	fi'
 endif
+
 
 .PHONY: backup-windows-libs
 backup-windows-libs:
@@ -378,7 +383,6 @@ backup-windows-libs:
 			fi; \
 			i=$$((i+1)); \
 		done; \
-		echo ""; \
 		mkdir -p backup_windows; \
 		mv lib/* backup_windows/; \
 		echo ">>> Backup complete"; \
@@ -397,10 +401,9 @@ build/$(PLAT)/%.o: src/%.cpp
 	@if [ ! -d build ]; then \
 		$(MKDIR_P) $(dir $@); \
 	fi
-	@echo "Compiling $< ..."
+	@echo ">>> Compiling $< ..."
 	@$(CXX) $(CXXFLAGS) -c $< -o $@ >> $(BUILD_LOG) 2>> $(ERROR_LOG)
 
-.PHONY: run
 .PHONY: run
 run:
 ifeq ($(WINDOWS),1)
@@ -440,15 +443,22 @@ else
 		/^ERROR:/   { e++ } \
 		/^WARNING:/ { w++ } \
 		/^FATAL:/   { f++ } \
-		END { \
-			width=64; \
-			msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
-			pad=int((width - length(msg)) / 2); \
-			printf "\n%*s%s\n\n", pad, "", msg; \
-			exit (e > 0 || f > 0); \
-		}' $(ERROR_LOG); rc=$$?; \
+		END { exit (e > 0 || f > 0) } \
+	' $(ERROR_LOG); rc=$$?; \
 	if [ $$rc -eq 0 ]; then \
 		$(MAKE) -s run-success; \
+		awk '\
+			BEGIN { e=0; w=0; f=0 } \
+			/^ERROR:/   { e++ } \
+			/^WARNING:/ { w++ } \
+			/^FATAL:/   { f++ } \
+			END { \
+				width=64; \
+				msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
+				pad=int((width - length(msg)) / 2); \
+				printf "%*s%s\n\n", pad, "", msg; \
+			} \
+		' $(ERROR_LOG); \
 		rm -f $(RUN_FAIL_MARK); \
 	else \
 		$(MAKE) -s run-error; \
