@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <cstdlib>
 #include <time.h> 
+#include <fstream>
 
 #include "map"
 #include "utility"
@@ -10,6 +11,8 @@
 #include "characters.hpp"
 #include "Observer.hpp"
 #include "functions.hpp"
+
+std::ofstream map_log("logs/map.log");
 
 const int mapSize = 7;
 
@@ -40,7 +43,8 @@ struct Cell{
 
     int position_x, position_y;
 
-    bool free , character = false;
+    bool free;
+    bool character = false;
 
     bool has_texture = false;
 
@@ -49,6 +53,9 @@ struct Cell{
     void show_position(){
         DrawText(TextFormat("%i",position_x + 1),position_x * x_cellSize, position_y * y_cellSize, 50 ,PINK);
         DrawText(TextFormat(":%i",position_y + 1),position_x * x_cellSize + 30, position_y * y_cellSize, 50 ,PINK);
+    }
+    void show_ocupied(){
+        DrawText(TextFormat("%i",free),position_x * x_cellSize, position_y * y_cellSize, 50 ,PINK);
     }
 
     void ocupied(int x, int y){
@@ -63,8 +70,8 @@ struct Cell{
 
     bool check_free(int x, int y){
         if(x == position_x && y == position_y)
-            return free;
-        return false;
+            return false;
+        return true;
     }
 
     void give_texture(Texture2D stone_1, Texture2D stone_2, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3) {
@@ -146,32 +153,46 @@ void ModifyBoard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
             if(turn)
-                if(cell_Instance[{i,j}].free){
-                    cell_Instance[{i,j}].show_position();
-                }
+                //if(cell_Instance[{i,j}].free){
+                    //cell_Instance[{i,j}].show_position();
+                    cell_Instance[{i,j}].show_ocupied();
+                //}
         }
     }
 }
+
+void UpdateMapLog(){
+    for (int i = 0; i < mapSize; i++) {
+        for (int j = 0; j < mapSize; j++) {
+            map_log << board[i][j] << " ";
+        }
+        map_log << std:: endl;
+    }
+    map_log << std:: endl;
+}
+
 void Updateboard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
-            if(board[i][j] == 1){
+            if(board[i][j] == 1 || board[i][j] == -1){
                 cell_Instance[{i,j}].free=false;
             }
             else if(board[i][j] == 0){
                 cell_Instance[{i,j}].free=true;
                 cell_Instance[{i,j}].character = false;
+                cell_Instance[{i,j}].has_texture = false;
             }
             
             if(x == j + 1 && y == i + 1){
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
+                board[i][j] = -1;
             }
             if(a == j + 1 && b == i + 1){
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
+                board[i][j] = -1;
             }
-
         }
     }
 }

@@ -143,12 +143,15 @@ SRC = src/game.cpp \
 LOG_DIR := logs
 BUILD_LOG := $(LOG_DIR)/build.log
 ERROR_LOG := $(LOG_DIR)/build_errors.log
+MAP_LOG := $(LOG_DIR)/map.log
+
 
 .PHONY: logs
 logs:
 	@mkdir -p $(LOG_DIR)
 	@touch $(BUILD_LOG)
 	@touch $(ERROR_LOG)
+	@touch $(MAP_LOG)
 
 # ===========================
 # OS detection

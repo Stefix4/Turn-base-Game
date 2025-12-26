@@ -15,6 +15,7 @@
 Observer events;
 
 int turn = 1;
+int update_turn = 0;
 bool isAlive = true;
 
 struct Potion
@@ -69,22 +70,22 @@ struct Hero :Character {
     }
 
     void Update_Texture(){
-        if(x>pos_x){
+        if(x > pos_x){
             pos_x += 1;
             fr_x = 900;
             fr_y = 520;
         }
-        if(x<pos_x){
+        if(x < pos_x){
             pos_x -= 1;
             fr_x = 900;
             fr_y = 1;
         }
-        if(y>pos_y){
+        if(y > pos_y){
             pos_y += 1;
             fr_x = 35;
             fr_y = 1;
         }
-        if(y<pos_y){
+        if(y < pos_y){
             pos_y -= 1;
             fr_x = 35;
             fr_y = 520;
@@ -157,6 +158,9 @@ void movement_monster(){
             if(b + 1 < y){
                 b +=  1;
                 turn++;
+                board[b-2][a-1] = 0;
+                update_turn++;
+                Updateboard();
             }
     }
     if(turn <= 0){
@@ -164,6 +168,9 @@ void movement_monster(){
             if(a + 1 < x){
                 a +=  1;
                 turn++;
+                board[b-1][a-2] = 0;
+                update_turn++;
+                Updateboard();
             }
     }
     if(turn <= 0){
@@ -171,6 +178,9 @@ void movement_monster(){
             if(b > y + 1){
                 b -=  1;
                 turn++;
+                board[b][a-1] = 0;
+                update_turn++;
+                Updateboard();
         }
     }
     if(turn <= 0){
@@ -178,30 +188,45 @@ void movement_monster(){
             if(a > x + 1){
                 a -=  1;
                 turn++;
+                board[b-1][a] = 0;
+                update_turn++;
+                Updateboard();
             }
     }
     if(turn <= 0){
         if(((board[b-1][a] == 1 && b < y ) || (board[b-1][a-2] == 1 && b < y)) && board[b][a-1] == 0){
             b +=  1;
             turn ++;
+            board[b-2][a-1] = 0;
+            update_turn++;
+            Updateboard();
         }
     }
     if(turn <= 0){
         if(((board[b-2][a-1] == 1 && a < x) || (board[b][a-1] == 1 && a < x)) && board[b-1][a] == 0){
             a +=  1;
             turn ++;
+            board[b-1][a-2] = 0;
+            update_turn++;
+            Updateboard();
     }
     }
     if(turn <= 0){
         if(((board[b-1][a-2] == 1 && b > y) || (board[b-1][a] == 1 && b > y)) && board[b-2][a-1] == 0){
             b -=  1;
             turn++;
+            board[b][a-1] = 0;
+            update_turn++;
+            Updateboard();
         }
     }
     if(turn <= 0){
         if(((board[b][a-1] == 1 && a > x) || (board[b-2][a-1] == 1 && a > x )) && board[b-1][a-2] == 0){
             a -=  1;
             turn ++;
+            board[b-1][a] = 0;
+            update_turn++;
+            Updateboard();
     }
     }
 }
@@ -212,12 +237,18 @@ void movement_hiro() {
                 if (IsKeyPressed(KEY_W)){
                     y -= 1;
                     turn--;
+                    board[y][x-1] = 0;
+                    update_turn++;
+                    Updateboard();
                 }
         if(y < mapSize)
             if(board[y][x-1] == 0)
                 if(IsKeyPressed(KEY_S)) {
                     y += 1;
                     turn--;
+                    board[y-2][x-1] = 0;
+                    update_turn++;
+                    Updateboard();
                 }
 }
     if(turn > 0){
@@ -226,12 +257,18 @@ void movement_hiro() {
                 if(IsKeyPressed(KEY_D)){
                     x += 1;
                     turn--;
+                    board[y-1][x-2] = 0;
+                    update_turn++;
+                    Updateboard();
                 }
     if(x > 1)
         if(board[y-1][x-2] == 0)
             if (IsKeyPressed(KEY_A)) {
                 x -= 1;
                 turn--;
+                board[y-1][x] = 0;
+                update_turn++;
+                Updateboard();
             }
     }
     if(!isAlive){
@@ -243,6 +280,8 @@ void Up_Health_Hiro(){
         if((b + 1 == y && a == x) || (b - 1 == y && a == x) || (b == y && a + 1 == x) || (b == y && a - 1 == x)){
             Hiro.hp -= Enemy->dmg;
             turn += 2;
+            update_turn++;
+            Updateboard();
         }
     if(IsKeyPressed(KEY_Q) && Health.count != 0){
         Hiro.hp += Health.hp_points;
@@ -255,13 +294,15 @@ void Up_Health_Hiro(){
         menuStateSelected = 2;
     }
     DrawText(TextFormat("Health: %d", Hiro.hp), 10, 10, 35, WHITE);
-    }
+}
 void Up_Health_Enemy(){
    if(turn > 0){
        if ((y + 1 == b && x == a) || (y - 1 == b && x == a) || ((y == b && x + 1 == a) || (y == b && x - 1 == a))) 
             if(IsKeyPressed(KEY_F)){
                 Enemy->hp -= Hiro.dmg;
                 turn--;
+                update_turn++;
+                Updateboard();
             }
    }
     if(Enemy->hp <= 0){
@@ -271,18 +312,25 @@ void Up_Health_Enemy(){
     DrawText(TextFormat("Health: %d", Enemy->hp), 10, 40, 35, WHITE);
 }
 
+void movement(){
+    movement_hiro();
+    movement_monster();
+    if(update_turn >= 2){
+        update_turn = 0;
+        UpdateMapLog();
+    }
+}
+
 void Char(int x_cellSize, int y_cellSize, Texture2D hiro){
     Hiro.create(x_cellSize, y_cellSize, hiro);
-    movement_hiro();
     Up_Health_Hiro();
-    
     if (isAlive){
         Enemy->create(x_cellSize, y_cellSize, hiro);
-        movement_monster();
         Up_Health_Enemy();
     }
     else{
         board[b][a] = 0;
         turn = 1;
-}
+    }
+    movement();
 }
