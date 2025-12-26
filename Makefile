@@ -90,7 +90,7 @@ define run_blocked
 			pad=int((width - length(msg)) / 2); \
 			printf "\n%*s%s\n\n", pad, "", msg; \
 		} \
-	' $(ERROR_LOG)
+	' $(RUN_ERROR_LOG)
 	@echo "Last run failed and build/ already exists."
 	@echo "Please fix the errors above before running again."
 	@echo
@@ -98,7 +98,7 @@ define run_blocked
 	@echo "  👉  make clean && make run"
 	@echo
 	@echo "Alternatively, to ignore previous errors and run anyway, delete the file:"
-	@echo "  👉  rm -f $(RUN_FAIL_MARK) && make run"
+	@echo "  👉  rm -f $(RUN_GUARD) && make run"
 	@echo
 	@echo "Note - Ignoring previous errors may lead to unexpected behavior. It's recommended to address the errors first."
 	@echo "     - Check the READNE.md file for troubleshooting tips."
@@ -183,7 +183,8 @@ LOG_DIR := logs
 BUILD_LOG := $(LOG_DIR)/build.log
 ERROR_LOG := $(LOG_DIR)/build_errors.log
 MAP_LOG := $(LOG_DIR)/map.log
-
+RUN_GUARD := build/$(PLAT)/.run_guard
+RUN_ERROR_LOG := $(LOG_DIR)/run_errors.tmp
 
 
 .PHONY: logs
@@ -193,7 +194,13 @@ logs:
 	@touch $(ERROR_LOG)
 	@touch $(MAP_LOG)
 
-
+.PHONY: rotate-logs
+rotate-logs:
+	@mkdir -p $(LOG_DIR)
+	@ts=$$(date +"%Y%m%d_%H%M%S"); \
+	if [ -f $(BUILD_LOG) ]; then mv $(BUILD_LOG) $(LOG_DIR)/build_$$ts.log; fi; \
+	if [ -f $(ERROR_LOG) ]; then mv $(ERROR_LOG) $(LOG_DIR)/errors_$$ts.log; fi; \
+	touch $(BUILD_LOG) $(ERROR_LOG)
 
 # ===========================
 # OS detection
@@ -233,9 +240,6 @@ else
 	RM = rm -rf
 endif
 
-RUN_FAIL_MARK := build/$(PLAT)/.run_failed
-
-
 # Diagnostic target to inspect raylib availability and warn about Windows builds
 check-raylib:
 	@echo ""
@@ -262,15 +266,19 @@ PLAT := $(if $(filter 1,$(WINDOWS)),windows,linux)
 # Build object files into build/$(PLAT)/
 OBJ := $(patsubst src/%.cpp, build/$(PLAT)/%.o, $(SRC))
 
+# ===========================
+# Guard target
+# ===========================
+
 .PHONY: guard-run
 guard-run:
-	@if [ -d build ] && [ -f $(RUN_FAIL_MARK) ]; then \
-		e=$$(grep -c '^ERROR:'   $(ERROR_LOG) 2>/dev/null || echo 0); \
-		w=$$(grep -c '^WARNING:' $(ERROR_LOG) 2>/dev/null || echo 0); \
-		f=$$(grep -c '^FATAL:'   $(ERROR_LOG) 2>/dev/null || echo 0); \
-		$(MAKE) -s run-blocked RUN_E=$$e RUN_W=$$w RUN_F=$$f; \
+	@if [ -f $(RUN_GUARD) ]; then \
+		$(MAKE) -s run-blocked; \
 		exit 1; \
 	fi
+	@mkdir -p $(dir $(RUN_GUARD))
+	@touch $(RUN_GUARD)
+
 
 .PHONY: ensure-logs
 ensure-logs:
@@ -311,19 +319,21 @@ ensure-libs:
 run-exec:
 	@echo ""
 	@echo "Running $(TARGET) ..."
+	@> $(RUN_ERROR_LOG)
 ifeq ($(WINDOWS),1)
 	@$(TARGET) 2>&1 | awk '\
-		/^FATAL:/   { print >> "$(ERROR_LOG)"; next } \
-		/^ERROR:/   { print >> "$(ERROR_LOG)"; next } \
-		/^WARNING:/ { print >> "$(ERROR_LOG)"; next } \
-		{ print >> "$(BUILD_LOG)" }'
+	/^FATAL:/   { print >> "$(RUN_ERROR_LOG)"; next } \
+	/^ERROR:/   { print >> "$(RUN_ERROR_LOG)"; next } \
+	/^WARNING:/ { print >> "$(RUN_ERROR_LOG)"; next } \
+	{ print >> "$(BUILD_LOG)" }'
 else
 	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET) 2>&1 | awk '\
-		/^FATAL:/   { print >> "$(ERROR_LOG)"; next } \
-		/^ERROR:/   { print >> "$(ERROR_LOG)"; next } \
-		/^WARNING:/ { print >> "$(ERROR_LOG)"; next } \
-		{ print >> "$(BUILD_LOG)" }'
+	/^FATAL:/   { print >> "$(RUN_ERROR_LOG)"; next } \
+	/^ERROR:/   { print >> "$(RUN_ERROR_LOG)"; next } \
+	/^WARNING:/ { print >> "$(RUN_ERROR_LOG)"; next } \
+	{ print >> "$(BUILD_LOG)" }'
 endif
+
 
 
 all:
@@ -408,43 +418,17 @@ run:
 ifeq ($(WINDOWS),1)
 	$(call banner_double,                          Windows Run                         )
 	@$(MAKE) -s ensure-logs && \
-	$(MAKE) -s guard-run && \
+	$(MAKE) -s rotate-logs && \
 	$(MAKE) -s ensure-built && \
-	$(MAKE) -s run-exec || exit 1; \
-	awk '\
-		BEGIN { e=0; w=0; f=0 } \
-		/^ERROR:/   { e++ } \
-		/^WARNING:/ { w++ } \
-		/^FATAL:/   { f++ } \
-		END { \
-			width=64; \
-			msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
-			pad=int((width - length(msg)) / 2); \
-			printf "\n%*s%s\n", pad, "", msg; \
-			exit (e > 0 || f > 0); \
-		}' $(ERROR_LOG); rc=$$?; \
-	if [ $$rc -eq 0 ]; then \
-		$(MAKE) -s run-success; \
-		rm -f $(RUN_FAIL_MARK); \
-	else \
-		$(MAKE) -s run-error; \
-		touch $(RUN_FAIL_MARK); \
-		exit 1; \
-	fi
-else
-	$(call banner_double,                         Linux Run                            )
-	@$(MAKE) -s ensure-logs && \
 	$(MAKE) -s guard-run && \
-	$(MAKE) -s ensure-libs && \
-	$(MAKE) -s ensure-built && \
-	$(MAKE) -s run-exec || exit 1; \
-	awk '\
+	$(MAKE) -s run-exec || exit 1;
+	@awk '\
 		BEGIN { e=0; w=0; f=0 } \
 		/^ERROR:/   { e++ } \
 		/^WARNING:/ { w++ } \
 		/^FATAL:/   { f++ } \
 		END { exit (e > 0 || f > 0) } \
-	' $(ERROR_LOG); rc=$$?; \
+	' $(RUN_ERROR_LOG); rc=$$?; \
 	if [ $$rc -eq 0 ]; then \
 		$(MAKE) -s run-success; \
 		awk '\
@@ -458,12 +442,71 @@ else
 				pad=int((width - length(msg)) / 2); \
 				printf "%*s%s\n\n", pad, "", msg; \
 			} \
-		' $(ERROR_LOG); \
-		rm -f $(RUN_FAIL_MARK); \
+		' $(RUN_ERROR_LOG); \
+		rm -f $(RUN_GUARD); \
 	else \
 		$(MAKE) -s run-error; \
-		touch $(RUN_FAIL_MARK); \
+		awk '\
+			BEGIN { e=0; w=0; f=0 } \
+			/^ERROR:/   { e++ } \
+			/^WARNING:/ { w++ } \
+			/^FATAL:/   { f++ } \
+			END { \
+				width=64; \
+				msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
+				pad=int((width - length(msg)) / 2); \
+				printf "%*s%s\n\n", pad, "", msg; \
+			} \
+		' $(RUN_ERROR_LOG); \
 		exit 1; \
+	fi
+else
+	$(call banner_double,                         Linux Run                            )
+	@$(MAKE) -s ensure-logs && \
+	$(MAKE) -s rotate-logs && \
+	$(MAKE) -s ensure-libs && \
+	$(MAKE) -s ensure-built && \
+	$(MAKE) -s guard-run && \
+	$(MAKE) -s run-exec || exit 1;
+	@awk '\
+		BEGIN { e=0; w=0; f=0 } \
+		/^ERROR:/   { e++ } \
+		/^WARNING:/ { w++ } \
+		/^FATAL:/   { f++ } \ 
+		END { exit (e > 0 || f > 0) } \
+	' $(RUN_ERROR_LOG); rc=$$?; \
+	if [ ! $$rc -eq 0 ]; then \
+		if grep -q '^ERROR:\|^FATAL:' $(RUN_ERROR_LOG); then \
+		$(MAKE) -s run-error; \
+		awk '\
+			BEGIN { e=0; w=0; f=0 } \
+			/^ERROR:/   { e++ } \
+			/^WARNING:/ { w++ } \
+			/^FATAL:/   { f++ } \
+			END { \
+				width=64; \
+				msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
+				pad=int((width - length(msg)) / 2); \
+				printf "%*s%s\n\n", pad, "", msg; \
+			} \
+		' $(RUN_ERROR_LOG); \
+		exit 1; \
+	else \
+		$(MAKE) -s run-success; \
+		rm -f $(RUN_GUARD); \
+		awk '\
+			BEGIN { e=0; w=0; f=0 } \
+			/^ERROR:/   { e++ } \
+			/^WARNING:/ { w++ } \
+			/^FATAL:/   { f++ } \
+			END { \
+				width=64; \
+				msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
+				pad=int((width - length(msg)) / 2); \
+				printf "%*s%s\n\n", pad, "", msg; \
+			} \
+		' $(RUN_ERROR_LOG); \
+		rm -f $(RUN_GUARD); \
 	fi
 endif
 
