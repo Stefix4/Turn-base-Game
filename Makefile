@@ -472,7 +472,7 @@ else
 		BEGIN { e=0; w=0; f=0 } \
 		/^ERROR:/   { e++ } \
 		/^WARNING:/ { w++ } \
-		/^FATAL:/   { f++ } \ 
+		/^FATAL:/   { f++ } \
 		END { exit (e > 0 || f > 0) } \
 	' $(RUN_ERROR_LOG); rc=$$?; \
 	if [ ! $$rc -eq 0 ]; then \
@@ -491,6 +491,7 @@ else
 			} \
 		' $(RUN_ERROR_LOG); \
 		exit 1; \
+		fi; \
 	else \
 		$(MAKE) -s run-success; \
 		rm -f $(RUN_GUARD); \
