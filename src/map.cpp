@@ -27,7 +27,7 @@ Vector2 player_position = {2, 4};
 Vector2 monster_position = {2, 2};
 
 
-int x = 2, y = 4, a = 2, b = 2;
+int x = player_position.x, y = player_position.y, a = monster_position.x, b = monster_position.y;
 
 //                     0 ,1 ,2 ,3 ,4 ,5 ,6
 int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
@@ -55,7 +55,7 @@ struct Cell{
         DrawText(TextFormat(":%i",position_y + 1),position_x * x_cellSize + 30, position_y * y_cellSize, 50 ,PINK);
     }
     void show_ocupied(){
-        DrawText(TextFormat("%i",free),position_x * x_cellSize, position_y * y_cellSize, 50 ,PINK);
+        DrawText(TextFormat("%i",board[position_y][position_x]),(position_x * x_cellSize) + 145, position_y * y_cellSize, 50 ,PINK);
     }
 
     void ocupied(int x, int y){
@@ -129,11 +129,11 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
                 cell_Instance[{i,j}].character = false;
             }
             
-            if(x == j + 1 && y == i + 1){
+            if((x == j + 1 && y == i + 1) && isAlive){
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
             }
-            if((a == j + 1 && b == i + 1) && isAlive){
+            if(a == j + 1 && b == i + 1){
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
             }
@@ -152,11 +152,10 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
 void ModifyBoard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
-            if(turn)
-                //if(cell_Instance[{i,j}].free){
+            //if(turn)
+                //if(cell_Instance[{i,j}].free)
                     //cell_Instance[{i,j}].show_position();
-                    cell_Instance[{i,j}].show_ocupied();
-                //}
+            cell_Instance[{i,j}].show_ocupied();
         }
     }
 }
@@ -174,6 +173,16 @@ void UpdateMapLog(){
 void Updateboard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
+            if(x == j + 1 && y == i + 1 && isAlive){
+                cell_Instance[{i,j}].free = false;
+                cell_Instance[{i,j}].character = true;
+                board[i][j] = -1;
+            }
+            if((a == j + 1 && b == i + 1 )&& (a != 0 && b != 0)){
+                cell_Instance[{i,j}].free = false;
+                cell_Instance[{i,j}].character = true;
+                board[i][j] = -1;
+            }
             if(board[i][j] == 1 || board[i][j] == -1){
                 cell_Instance[{i,j}].free=false;
             }
@@ -181,17 +190,6 @@ void Updateboard(){
                 cell_Instance[{i,j}].free=true;
                 cell_Instance[{i,j}].character = false;
                 cell_Instance[{i,j}].has_texture = false;
-            }
-            
-            if(x == j + 1 && y == i + 1){
-                cell_Instance[{i,j}].free = false;
-                cell_Instance[{i,j}].character = true;
-                board[i][j] = -1;
-            }
-            if(a == j + 1 && b == i + 1){
-                cell_Instance[{i,j}].free = false;
-                cell_Instance[{i,j}].character = true;
-                board[i][j] = -1;
             }
         }
     }

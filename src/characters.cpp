@@ -271,9 +271,8 @@ void movement_hiro() {
                 Updateboard();
             }
     }
-    if(!isAlive){
-        turn--;
-    }
+    if(!Enemy->isAlive)
+        turn = 1;
 }
 void Up_Health_Hiro(){
     if(turn <= 0 && isAlive)
@@ -291,7 +290,8 @@ void Up_Health_Hiro(){
         Hiro.hp = 10;
     if(Hiro.hp <= 0){
         Hiro.hp = 0;
-        menuStateSelected = 2;
+        isAlive = false;
+        //menuStateSelected = 2
     }
     DrawText(TextFormat("Health: %d", Hiro.hp), 10, 10, 35, WHITE);
 }
@@ -307,30 +307,48 @@ void Up_Health_Enemy(){
    }
     if(Enemy->hp <= 0){
         Enemy->hp = 0;
-        isAlive = false;
+        Enemy->isAlive = false;
+        if((a != 0  && b != 0) && Enemy->isAlive == false)
+            TraceLog(LOG_ERROR, "Monster is dead!");
+        board[b-1][a-1] = 0;
+        a = 0;
+        b = 0;
+        UpdateMapLog();
+        Updateboard();
         }
-    DrawText(TextFormat("Health: %d", Enemy->hp), 10, 40, 35, WHITE);
+    else
+        DrawText(TextFormat("Health: %d", Enemy->hp), 10, 40, 35, WHITE);
 }
 
 void movement(){
-    movement_hiro();
-    movement_monster();
-    if(update_turn >= 2){
-        update_turn = 0;
-        UpdateMapLog();
+    if(isAlive == true){
+        Up_Health_Hiro();
+        movement_hiro();
+    }
+    if(Enemy->isAlive == true){
+        movement_monster();
+        Up_Health_Enemy();
+        if(update_turn >= 2){
+            update_turn = 0;
+            UpdateMapLog();
+        }
+    }
+    else{
+        if(update_turn >= 1){
+            update_turn = 0;
+            UpdateMapLog();
+        }
     }
 }
 
 void Char(int x_cellSize, int y_cellSize, Texture2D hiro){
     Hiro.create(x_cellSize, y_cellSize, hiro);
     Up_Health_Hiro();
-    if (isAlive){
+    if(Enemy->isAlive){
         Enemy->create(x_cellSize, y_cellSize, hiro);
         Up_Health_Enemy();
     }
-    else{
-        board[b][a] = 0;
+    else
         turn = 1;
-    }
     movement();
 }

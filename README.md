@@ -1,7 +1,7 @@
 # Turn-base-Game
 Game made using Raylib and C++
 
-#### **How to compile & run:**
+# **How to compile & run:**
 
 • Clone repository using:
 ```bash
@@ -29,7 +29,7 @@ git clone https://github.com/Stefix4/Turn-base-Game.git
   }
 ```
 
-## Building & Running (cross-platform) ✅
+# Building & Running (cross-platform) ✅
 
 **Prerequisites**
 - Linux: a working build toolchain (g++) and Raylib (dev package or static/lib files in `lib/`).
@@ -70,29 +70,73 @@ make help
 **Tips**
 - The `Makefile` compiles sources into `build/windows/` or `build/linux/` and links against `lib/`. If you prefer a debug build, set `CXXFLAGS += -g -Og` on the command line or modify the `Makefile`.
 
-## Troubleshooting ⚠️
+# Troubleshooting ⚠️
 
-- Compiler silently fails or `make` exits with code 1:
+ ### ❌ `No rule to make target '0'`
+  - You may see an error like this when running `make run`:
+  ```
+  make[2]: *** No rule to make target '0'.  Stop.
+  make[1]: *** [Makefile:261: guard-run] Error 1
+  make: *** [Makefile:403: run] Error 1
+
+  ```
+- ### **What this means**
+  - Your **program ran**, but it **reported runtime errors** (`ERROR:` or `FATAL:` in the logs)
+  - The build/ directory already exists
+  - The Makefile intentionally blocks running again
+
+> [!IMPORTANT] 
+> ### **This is expected behavior, not a Makefile bug.**
+
+- The Makefile is designed to stop you from re-running a broken build until you explicitly clean it.
+  - The message `No rule to make target '0'`
+is how GNU Make reports this forced stop.
+  - It is **not** trying to build a file named 0.
+### **How to fix**
+> [!IMPORTANT] 
+> ### **Please fix the errors above before running again.**
+- You can ignore the previous errors and run anyway using:
+```
+make clean
+make run
+```
+> [!NOTE]
+> ### Ignoring previous errors may lead to **unexpected behavior**.
+> ### **It's recommended to address the errors first.**
+> ### You can continue to ignore the error, but the same error (`No rule to make target '0'`) will come up everytime you try to run the game two consecutively times, until you fix the errors.
+
+- #### You can simply try to **fix the errors**, and eventually the **`No rule to make target '0'` will stop.**
+
+-------------------------------------------------------------------------------
+
+### Compiler silently fails or `make` exits with code 1:
   - Check for stray runtime DLLs in the project root (e.g., `libgcc_s_seh-1.dll`, `libwinpthread-1.dll`). Move them out of the repo root (example: `mkdir -p lib/_backup_dlls && mv libgcc_s_seh-1.dll libwinpthread-1.dll lib/_backup_dlls/`).
   - Reinstall the MSYS2 toolchain if needed: `pacman -S --needed mingw-w64-x86_64-gcc`
   - Re-run `make clean` then `make` and inspect compiler output.
 
-- Linker errors / missing raylib:
+-------------------------------------------------------------------------------
+### Linker errors / missing raylib:
   - Ensure Raylib dev files or static library are available (`lib/libraylib.a` or system raylib package).
   - On Linux: install `libraylib-dev` (or equivalent) via your package manager.
   - Verify `ls lib/` and `nm -A lib/libraylib.a | head` to inspect the archive.
 
-- Graphics or runtime issues:
+-------------------------------------------------------------------------------
+
+### Graphics or runtime issues:
   - Run `make run` in the same shell used for build (MSYS2 MinGW64 if on Windows).
   - Ensure GPU drivers support the OpenGL version printed by raylib at startup.
 
-- Useful debug commands:
+
+
+# Useful debug commands:
+
   - `make -n` (show commands without running)
   - `make clean && make V=1` or run the g++ link command shown by `make -n` directly to capture full error output
   - `make check-raylib` — checks for a system `raylib` via pkg-config, or inspects `lib/` and warns if the bundled `libraylib` appears to be a Windows/MinGW build; useful to diagnose link failures on Linux
   - To build using the system-installed raylib instead of the bundled library, run: `make USE_SYSTEM_RAYLIB=1` (recommended to run `make check-raylib` first)
 
-## Windows checklist 🪟
+
+# Windows checklist 🪟
 
 If you're building on Windows (MSYS2 / MinGW64), check these if things fail:
 - Use the **MinGW64** shell (MSYS2) — building from other shells can pick wrong toolchains.
@@ -100,7 +144,7 @@ If you're building on Windows (MSYS2 / MinGW64), check these if things fail:
 - Do not keep runtime DLLs in the project root; place them in `/mingw64/bin` or `dist/`.
 - If you see silent compiler failures, move any suspicious DLLs out of the repo root and retry.
 
-## Contributing 🤝
+# Contributing 🤝
 
 Contributions are welcome! If you want to contribute:
 - Open an issue first to discuss larger changes.

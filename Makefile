@@ -41,7 +41,7 @@ endef
 
 define run_error
 	@echo
-	@echo "!!!!!!!!!!!!!!!! RUN FAILED !!!!!!!!!!!!!!!!"
+	@echo "!!!!!!!!!!!!!!!!!!!!!!!!! RUN FAILED !!!!!!!!!!!!!!!!!!!!!!!!!!!"
 	@echo
 endef
 
@@ -76,17 +76,46 @@ define help_banner
 	$(call banner_double)
 endef
 
-define log_cmd
-	@echo ">>> Running: $(1)"
-	@$(1) >> $(BUILD_LOG) 2>> $(ERROR_LOG)
-
+define run_blocked
+	@echo
+	@echo "!!!!!!!!!!!!!!!!!!!!!!!!! RUN BLOCKED !!!!!!!!!!!!!!!!!!!!!!!!!!"
+	awk '\
+		BEGIN { e=0; w=0; f=0 } \
+		/^ERROR:/   { e++ } \
+		/^WARNING:/ { w++ } \
+		/^FATAL:/   { f++ } \
+		END { \
+			width=64; \
+			msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
+			pad=int((width - length(msg)) / 2); \
+			printf "\n%*s%s\n\n", pad, "", msg; \
+		} \
+	' $(ERROR_LOG)
+	@echo "Last run failed and build/ already exists."
+	@echo "Please fix the errors above before running again."
+	@echo
+	@echo "To clear the build and try again, run:"
+	@echo "  👉  make clean && make run"
+	@echo
+	@echo "Alternatively, to ignore previous errors and run anyway, delete the file:"
+	@echo "  👉  rm -f $(RUN_FAIL_MARK) && make run"
+	@echo
+	@echo "Note - Ignoring previous errors may lead to unexpected behavior. It's recommended to address the errors first."
+	@echo "     - Check the READNE.md file for troubleshooting tips."
 endef
+
+
+define log_cmd
+	@echo ">>> Running: $(1)" >> $(BUILD_LOG)
+	@$(1) >> $(BUILD_LOG) 2>> $(ERROR_LOG)
+endef
+
 
 # ===========================
 # Phony targets 
 # ===========================
 
-.PHONY: clean-success clean-error run-success run-error build-success build-error build-hint help-banner
+.PHONY: clean-success clean-error run-success run-error build-success build-error build-hint help-banner run-blocked
 
 clean-success:
 	$(call clean_success)
@@ -100,6 +129,9 @@ run-success:
 run-error:
 	$(call run_error)
 
+run-blocked:
+	$(call run_blocked)
+
 build-success:
 	$(call build_success)
 
@@ -111,6 +143,7 @@ build-hint:
 
 help-banner:
 	$(call help_banner)
+
 
 # ===========================
 
@@ -151,6 +184,7 @@ ERROR_LOG := $(LOG_DIR)/build_errors.log
 MAP_LOG := $(LOG_DIR)/map.log
 
 
+
 .PHONY: logs
 logs:
 	@mkdir -p $(LOG_DIR)
@@ -184,17 +218,22 @@ endif
 # Defer checking for system raylib until link time. Use bundled lib by default for Linux.
 ifeq ($(WINDOWS),1)
 	TARGET = build/windows/Game.exe
+	PALT = build/windows:$(PATH)
 	LDFLAGS = -Llib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 	# Use mkdir -p so creating an existing directory won't fail (works in MSYS/Cygwin)
 	MKDIR_P = mkdir -p
 	RM = rm -rf
 else
 	TARGET = build/linux/Game
+	PALT = build/linux:$(PATH)
 	# Default to bundled libraylib in lib/; if system raylib is present, we'll use pkg-config at link time
 	LDFLAGS = -Llib/ -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 	MKDIR_P = mkdir -p
 	RM = rm -rf
 endif
+
+RUN_FAIL_MARK := build/$(PLAT)/.run_failed
+
 
 # Diagnostic target to inspect raylib availability and warn about Windows builds
 check-raylib:
@@ -222,6 +261,19 @@ PLAT := $(if $(filter 1,$(WINDOWS)),windows,linux)
 # Build object files into build/$(PLAT)/
 OBJ := $(patsubst src/%.cpp, build/$(PLAT)/%.o, $(SRC))
 
+.PHONY: guard-run
+guard-run:
+	@if [ -d build ] && [ -f $(RUN_FAIL_MARK) ]; then \
+		e=$$(grep -c '^ERROR:'   $(ERROR_LOG) 2>/dev/null || echo 0); \
+		w=$$(grep -c '^WARNING:' $(ERROR_LOG) 2>/dev/null || echo 0); \
+		f=$$(grep -c '^FATAL:'   $(ERROR_LOG) 2>/dev/null || echo 0); \
+		$(MAKE) -s run-blocked RUN_E=$$e RUN_W=$$w RUN_F=$$f; \
+		exit 1; \
+	fi
+
+
+
+
 .PHONY: ensure-logs
 ensure-logs:
 	$(logs)
@@ -230,11 +282,12 @@ ensure-logs:
 		echo ">>> Creating logs directory"; \
 		$(MAKE) -s logs; \
 	else \
-		echo ">>> logs directory already exists, skipping logs"; \
+		echo ">>> Logs directory already exists, skipping logs"; \
 	fi
 
 .PHONY: ensure-built
 ensure-built:
+	@echo ""
 ifeq ($(WINDOWS),1)
 	@echo "Ensuring Windows build exists..."
 	@if [ ! -f $(TARGET) ]; then \
@@ -258,15 +311,23 @@ run-exec:
 	@echo ""
 	@echo "Running $(TARGET) ..."
 ifeq ($(WINDOWS),1)
-	@$(TARGET) >> $(BUILD_LOG) 2>> $(ERROR_LOG)
+	@$(TARGET) 2>&1 | awk '\
+		/^FATAL:/   { print >> "$(ERROR_LOG)"; next } \
+		/^ERROR:/   { print >> "$(ERROR_LOG)"; next } \
+		/^WARNING:/ { print >> "$(ERROR_LOG)"; next } \
+		{ print >> "$(BUILD_LOG)" }'
 else
-	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET) >> $(BUILD_LOG) 2>> $(ERROR_LOG)
+	@LD_LIBRARY_PATH=lib:$$LD_LIBRARY_PATH ./$(TARGET) 2>&1 | awk '\
+		/^FATAL:/   { print >> "$(ERROR_LOG)"; next } \
+		/^ERROR:/   { print >> "$(ERROR_LOG)"; next } \
+		/^WARNING:/ { print >> "$(ERROR_LOG)"; next } \
+		{ print >> "$(BUILD_LOG)" }'
 endif
 
 
 all:
 ifeq ($(WINDOWS),1)
-	$(call banner_double,                     Windows Build                          )
+	$(call banner_double,                        Windows Build                         )
 	@$(MAKE) -s ensure-logs && \
 	$(MAKE) -s ensure-built && \
 	$(MAKE) -s build-success && \
@@ -337,26 +398,66 @@ build/$(PLAT)/%.o: src/%.cpp
 		$(MKDIR_P) $(dir $@); \
 	fi
 	@echo "Compiling $< ..."
-	@$(CXX) $(CXXFLAGS) -c $< -o $@ > $(BUILD_LOG) 2>> $(ERROR_LOG)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@ >> $(BUILD_LOG) 2>> $(ERROR_LOG)
 
 .PHONY: run
+.PHONY: run
 run:
-ifeq ($(WINDOWS),0)
-	$(call banner_double,                        Linux Run                             )
-	@$(MAKE) -s ensure-built && \
-	$(MAKE) -s ensure-logs && \
-	$(MAKE) -s run-exec && \
-	$(MAKE) -s run-success || \
-	$(MAKE) -s run-error
-endif
 ifeq ($(WINDOWS),1)
-	$(call banner_double,                       Windows Run                            )
-	@$(MAKE) -s ensure-built && \
-	$(MAKE) -s ensure-logs && \
-	$(MAKE) -s run-exec && \
-	$(MAKE) -s run-success || \
-	$(MAKE) -s run-error
+	$(call banner_double,                          Windows Run                         )
+	@$(MAKE) -s ensure-logs && \
+	$(MAKE) -s guard-run && \
+	$(MAKE) -s ensure-built && \
+	$(MAKE) -s run-exec || exit 1; \
+	awk '\
+		BEGIN { e=0; w=0; f=0 } \
+		/^ERROR:/   { e++ } \
+		/^WARNING:/ { w++ } \
+		/^FATAL:/   { f++ } \
+		END { \
+			width=64; \
+			msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
+			pad=int((width - length(msg)) / 2); \
+			printf "\n%*s%s\n", pad, "", msg; \
+			exit (e > 0 || f > 0); \
+		}' $(ERROR_LOG); rc=$$?; \
+	if [ $$rc -eq 0 ]; then \
+		$(MAKE) -s run-success; \
+		rm -f $(RUN_FAIL_MARK); \
+	else \
+		$(MAKE) -s run-error; \
+		touch $(RUN_FAIL_MARK); \
+		exit 1; \
+	fi
+else
+	$(call banner_double,                         Linux Run                            )
+	@$(MAKE) -s ensure-logs && \
+	$(MAKE) -s guard-run && \
+	$(MAKE) -s ensure-built && \
+	$(MAKE) -s run-exec || exit 1; \
+	awk '\
+		BEGIN { e=0; w=0; f=0 } \
+		/^ERROR:/   { e++ } \
+		/^WARNING:/ { w++ } \
+		/^FATAL:/   { f++ } \
+		END { \
+			width=64; \
+			msg=sprintf("Errors: %d    Warnings: %d    Fatals: %d", e, w, f); \
+			pad=int((width - length(msg)) / 2); \
+			printf "\n%*s%s\n\n", pad, "", msg; \
+			exit (e > 0 || f > 0); \
+		}' $(ERROR_LOG); rc=$$?; \
+	if [ $$rc -eq 0 ]; then \
+		$(MAKE) -s run-success; \
+		rm -f $(RUN_FAIL_MARK); \
+	else \
+		$(MAKE) -s run-error; \
+		touch $(RUN_FAIL_MARK); \
+		exit 1; \
+	fi
 endif
+
+
 
 clean:
 ifeq ($(WINDOWS),0)
