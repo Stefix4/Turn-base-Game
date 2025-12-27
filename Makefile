@@ -183,6 +183,7 @@ LOG_DIR := logs
 BUILD_LOG := $(LOG_DIR)/build.log
 ERROR_LOG := $(LOG_DIR)/build_errors.log
 MAP_LOG := $(LOG_DIR)/map.log
+MONSTER_MAP_LOG := $(LOG_DIR)/monster_map.log
 RUN_GUARD := build/$(PLAT)/.run_guard
 RUN_ERROR_LOG := $(LOG_DIR)/run_errors.tmp
 
@@ -193,6 +194,7 @@ logs:
 	@touch $(BUILD_LOG)
 	@touch $(ERROR_LOG)
 	@touch $(MAP_LOG)
+	@touch $(MONSTER_MAP_LOG)
 
 .PHONY: rotate-logs
 rotate-logs:
@@ -317,7 +319,6 @@ ensure-libs:
 
 .PHONY: run-exec
 run-exec:
-	@echo ""
 	@echo "Running $(TARGET) ..."
 	@> $(RUN_ERROR_LOG)
 ifeq ($(WINDOWS),1)
@@ -363,11 +364,13 @@ else
 	if [ "$(USE_SYSTEM_RAYLIB)" = "1" ]; then \
 		CFLAGS="$$(pkg-config --cflags raylib 2>/dev/null)"; \
 		LIBS="$$(pkg-config --libs raylib 2>/dev/null)"; \
-		echo ">>> Running: $(CXX) $(CXXFLAGS) $$CFLAGS $(OBJ) -o $(TARGET) $$LIBS" >> $(BUILD_LOG); \
+		echo " "\
+		# echo ">>> Running: $(CXX) $(CXXFLAGS) $$CFLAGS $(OBJ) -o $(TARGET) $$LIBS" >> $(BUILD_LOG); \
 		$(CXX) $(CXXFLAGS) $$CFLAGS $(OBJ) -o $(TARGET) $$LIBS >> $(BUILD_LOG) 2>> $(ERROR_LOG); \
 	else \
 		$(MAKE) -s check-windows-libs || exit 1; \
-		echo ">>> Running: $(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)" >> $(BUILD_LOG); \
+		echo " "\
+		# echo ">>> Running: $(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS)" >> $(BUILD_LOG); \
 		$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(LDFLAGS) >> $(BUILD_LOG) 2>> $(ERROR_LOG); \
 	fi'
 endif
@@ -419,9 +422,19 @@ ifeq ($(WINDOWS),1)
 	$(call banner_double,                          Windows Run                         )
 	@$(MAKE) -s ensure-logs && \
 	$(MAKE) -s rotate-logs && \
-	$(MAKE) -s ensure-built && \
-	$(MAKE) -s guard-run && \
-	$(MAKE) -s run-exec || exit 1;
+	set -e; \
+	if ! $(MAKE) -s ensure-built; then \
+		$(MAKE) -s run-error; \
+		exit 1; \
+	fi; \
+	if ! $(MAKE) -s guard-run; then \
+		$(MAKE) -s run-error; \
+		exit 1; \
+	fi; \
+	if ! $(MAKE) -s run-exec; then \
+		$(MAKE) -s run-error; \
+		exit 1; \
+	fi
 	@awk '\
 		BEGIN { e=0; w=0; f=0 } \
 		/^ERROR:/   { e++ } \
@@ -465,9 +478,19 @@ else
 	@$(MAKE) -s ensure-logs && \
 	$(MAKE) -s rotate-logs && \
 	$(MAKE) -s ensure-libs && \
-	$(MAKE) -s ensure-built && \
-	$(MAKE) -s guard-run && \
-	$(MAKE) -s run-exec || exit 1;
+	set -e; \
+	if ! $(MAKE) -s ensure-built; then \
+		$(MAKE) -s run-error; \
+		exit 1; \
+	fi; \
+	if ! $(MAKE) -s guard-run; then \
+		$(MAKE) -s run-error; \
+		exit 1; \
+	fi; \
+	if ! $(MAKE) -s run-exec; then \
+		$(MAKE) -s run-error; \
+		exit 1; \
+	fi
 	@awk '\
 		BEGIN { e=0; w=0; f=0 } \
 		/^ERROR:/   { e++ } \
@@ -510,8 +533,6 @@ else
 		rm -f $(RUN_GUARD); \
 	fi
 endif
-
-
 
 clean:
 ifeq ($(WINDOWS),0)

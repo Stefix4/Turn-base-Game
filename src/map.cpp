@@ -22,9 +22,9 @@ float x_cellSize =screenWidth / mapSize;
 
 float y_cellSize = screenHeight / mapSize;
 
-Vector2 player_position = {2, 4};
+Vector2 player_position = {4, 5};
 
-Vector2 monster_position = {2, 2};
+Vector2 monster_position = {1, 1};
 
 
 int x = player_position.x, y = player_position.y, a = monster_position.x, b = monster_position.y;
@@ -33,7 +33,7 @@ int x = player_position.x, y = player_position.y, a = monster_position.x, b = mo
 int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*1*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*2*/{0 ,0 ,1 ,0 ,0 ,0 ,0},
-                 /*3*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
+                 /*3*/{0 ,0 ,0 ,0 ,1 ,0 ,0},
                  /*4*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*5*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*6*/{0 ,0 ,0 ,0 ,0 ,0 ,0}
@@ -57,15 +57,24 @@ struct Cell{
     void show_ocupied(){
         DrawText(TextFormat("%i",board[position_y][position_x]),(position_x * x_cellSize) + 145, position_y * y_cellSize, 50 ,PINK);
     }
+    void show_position_player(){
+        DrawText(TextFormat("%i",x ),x_cellSize*6, position_y * y_cellSize*7, 50 ,WHITE);
+        DrawText(TextFormat(":%i",y),x_cellSize*6 + 30, position_y * y_cellSize*7, 50 ,WHITE);
+        DrawText(TextFormat(":%i", turn),x_cellSize *6 + 60, position_y * y_cellSize * 6 + 30, 50, WHITE);
+    }
+    void show_position_monster(){
+        DrawText(TextFormat("%i",a),x_cellSize*6 + 90, position_y * y_cellSize*7, 50 ,WHITE);
+        DrawText(TextFormat(":%i",b),x_cellSize*6 + 120, position_y * y_cellSize*7, 50 ,WHITE);
+    }
 
     void ocupied(int x, int y){
         if(position_x == x && position_y == y)
-            board[y][x] = 1;
+            board[x][y] = 1;
     }
 
     void unocupied(int x, int y){
         if(position_x == x && position_y == y)
-            board[y][x] = 0;
+            board[x][y] = 0;
     }
 
     bool check_free(int x, int y){
@@ -115,7 +124,7 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
     seed = 1000;
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
-            Color cellColor = RED;
+            Color cellColor = BLACK;
             DrawRectangleLines(j * x_cellSize, i * y_cellSize, x_cellSize, y_cellSize, cellColor);
 
             srand(seed); 
@@ -148,14 +157,14 @@ void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2, Textur
     
 }
 
-
 void ModifyBoard(){
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
             //if(turn)
                 //if(cell_Instance[{i,j}].free)
-                    //cell_Instance[{i,j}].show_position();
-            cell_Instance[{i,j}].show_ocupied();
+                cell_Instance[{i,j}].show_position();
+                cell_Instance[{i,j}].show_ocupied();
+                cell_Instance[{i,j}].show_position_player();
         }
     }
 }
@@ -181,7 +190,7 @@ void Updateboard(){
             if((a == j + 1 && b == i + 1 )&& (a != 0 && b != 0)){
                 cell_Instance[{i,j}].free = false;
                 cell_Instance[{i,j}].character = true;
-                board[i][j] = -1;
+                board[i][j] = 2;
             }
             if(board[i][j] == 1 || board[i][j] == -1){
                 cell_Instance[{i,j}].free=false;

@@ -2,9 +2,9 @@
 
 #include <raylib.h>
 #include <map>
+#include <fstream>
 
 void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2 , Texture2D bush_1, Texture2D bush_2, Texture2D bush_3);
-void ModifyBoard();
 void Updateboard();
 void UpdateMapLog();
 struct Cell;
@@ -19,4 +19,4 @@ extern int x;
 extern int y;
 extern int a;
 extern int b;
-extern std::map<std::pair<int,int>, Cell> cell_Instance;
+extern std::ofstream map_log;

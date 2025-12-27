@@ -4,6 +4,10 @@
 #include <map>
 #include <thread>
 #include <iostream>
+#include <iomanip>
+#include <queue>
+#include <fstream>
+#include <cmath>
 
 #include "characters.hpp"
 #include "map.hpp"
@@ -12,10 +16,17 @@
 #include "functions.hpp"
 #include "menu.hpp"
 
+std::ofstream monster_map_log("logs/monster_map.log");
+
+int A[7][7] = {};
+
+const int di[]={-1, 0, 1, 0},
+          dj[]={ 0, 1, 0,-1};
+
 Observer events;
 
 int turn = 1;
-int update_turn = 0;
+int update_turn = -1;
 bool isAlive = true;
 
 struct Potion
@@ -26,8 +37,6 @@ struct Potion
         count = b;
     }
 };
-
-
 struct Character:Observer
 {  
     int pos_x,pos_y;
@@ -56,7 +65,6 @@ struct Character:Observer
     }
     
 };
-
 
 struct Hero :Character {
     Color team;
@@ -147,108 +155,171 @@ struct Monster :Character {
 
 };
 
+void null_elements(){
+     for (int i = 0; i < mapSize; i++){
+        for (int j = 0; j < mapSize; j++) {
+            if(board[i][j] == 0)
+                map_log << board[i][j] << " ";
+            else
+                map_log << " ";
+        }
+        map_log << std::endl;
+    }
+}
+
 Potion Health(2, 2);
 Hero Hiro(player_position.x, player_position.y, GREEN);
 Monster* Enemy = new Monster(monster_position.x, monster_position.y, RED);
 
-// a = x; b = y
-void movement_monster(){
-    if(turn <= 0){
-        if(b < mapSize && board[b][a-1] == 0)
-            if(b + 1 < y){
-                b +=  1;
-                turn++;
-                board[b-2][a-1] = 0;
-                update_turn++;
-                Updateboard();
-            }
-    }
-    if(turn <= 0){
-        if(a < mapSize && board[b-1][a] == 0)
-            if(a + 1 < x){
-                a +=  1;
-                turn++;
-                board[b-1][a-2] = 0;
-                update_turn++;
-                Updateboard();
-            }
-    }
-    if(turn <= 0){
-        if(b > 1 && board[b-2][a-1] == 0)
-            if(b > y + 1){
-                b -=  1;
-                turn++;
-                board[b][a-1] = 0;
-                update_turn++;
-                Updateboard();
+bool monster_is_adjacent()
+{
+    return (abs(a - x) + abs(b - y)) == 1;
+}
+
+void give_turn_to_monster(){
+    turn--;
+    update_turn++;
+    Updateboard();
+}
+
+void give_turn_to_hiro(){
+    turn++;
+    update_turn++;
+    Updateboard();
+}
+
+void Update_monster_map(){
+    for(int i = 0; i < mapSize; i++)
+        for(int j = 0; j < mapSize; j++)
+            if(board[i][j] == 1)
+                A[i][j] = -1;
+            else if(board[i][j] == -1)
+                A[i][j] = -1;
+            else
+                A[i][j] = 0;
+    for (int i = 0; i < mapSize; i++) {
+        for (int j = 0; j < mapSize; j++) {
+            monster_map_log << std::setw(3) << A[i][j];
         }
+        monster_map_log << std:: endl;
     }
-    if(turn <= 0){
-        if(a > 1 && board[b-1][a-2] == 0)
-            if(a > x + 1){
-                a -=  1;
-                turn++;
-                board[b-1][a] = 0;
-                update_turn++;
-                Updateboard();
+    monster_map_log << std:: endl;
+}
+
+void lee_from_hero(int hy, int hx)
+{
+    Update_monster_map();
+
+    std::queue<std::pair<int,int>> Q;
+
+    int sy = hy - 1;
+    int sx = hx - 1;
+
+    Q.push({sy, sx});
+    A[sy][sx] = 1;
+
+    while (!Q.empty()) {
+        auto [i, j] = Q.front();
+        Q.pop();
+
+        for (int k = 0; k < 4; k++) {
+            int iv = i + di[k];
+            int jv = j + dj[k];
+
+            if (iv >= 0 && iv < mapSize &&
+                jv >= 0 && jv < mapSize &&
+                A[iv][jv] == 0 &&
+                board[iv][jv] == 0 &&
+                !(iv == sy && jv == sx))
+            {
+                A[iv][jv] = A[i][j] + 1;
+                Q.push({iv, jv});
             }
-    }
-    if(turn <= 0){
-        if(((board[b-1][a] == 1 && b < y ) || (board[b-1][a-2] == 1 && b < y)) && board[b][a-1] == 0){
-            b +=  1;
-            turn ++;
-            board[b-2][a-1] = 0;
-            update_turn++;
-            Updateboard();
         }
-    }
-    if(turn <= 0){
-        if(((board[b-2][a-1] == 1 && a < x) || (board[b][a-1] == 1 && a < x)) && board[b-1][a] == 0){
-            a +=  1;
-            turn ++;
-            board[b-1][a-2] = 0;
-            update_turn++;
-            Updateboard();
-    }
-    }
-    if(turn <= 0){
-        if(((board[b-1][a-2] == 1 && b > y) || (board[b-1][a] == 1 && b > y)) && board[b-2][a-1] == 0){
-            b -=  1;
-            turn++;
-            board[b][a-1] = 0;
-            update_turn++;
-            Updateboard();
-        }
-    }
-    if(turn <= 0){
-        if(((board[b][a-1] == 1 && a > x) || (board[b-2][a-1] == 1 && a > x )) && board[b-1][a-2] == 0){
-            a -=  1;
-            turn ++;
-            board[b-1][a] = 0;
-            update_turn++;
-            Updateboard();
-    }
     }
 }
+
+
+void move_monster_one_step()
+{
+    int mi = b - 1;
+    int mj = a - 1;
+
+    int best = 9999;
+    int ni = mi, nj = mj;
+
+    for (int k = 0; k < 4; k++) {
+        int iv = mi + di[k];
+        int jv = mj + dj[k];
+
+        if (iv >= 0 && iv < mapSize &&jv >= 0 && jv < mapSize && A[iv][jv] > 0 && A[iv][jv] < best){
+            best = A[iv][jv];
+            ni = iv;
+            nj = jv;
+        }
+    }
+
+    board[mi][mj] = 0;
+    b = ni + 1;
+    a = nj + 1;
+    board[ni][nj] = 2;
+
+    give_turn_to_hiro();
+}
+void Up_Health_Enemy(){
+    // hero turn only
+    if (turn > 0){
+    // must be adjacent AND press F
+    if (monster_is_adjacent() && IsKeyPressed(KEY_F)){
+        Enemy->hp -= Hiro.dmg;
+        give_turn_to_monster();
+    }
+    }
+    // death handling
+    if (Enemy->hp <= 0){
+        Enemy->hp = 0;
+        Enemy->isAlive = false;
+        TraceLog(LOG_TRACE, "Monster is dead!");
+        board[b-1][a-1] = 0;  // clear monster tile
+        a = 0;
+        b = 0;
+        UpdateMapLog();
+        Updateboard();
+    }
+}
+
+void Up_Health_Hiro(){
+    if(Enemy->isAlive)
+        Up_Health_Enemy();
+    if (IsKeyPressed(KEY_Q) && Health.count != 0 && Hiro.hp + Health.hp_points <= 10) {
+        Hiro.hp += Health.hp_points;
+        Health.count--;
+    }
+    if (Hiro.hp > 10)
+        Hiro.hp = 10;
+        
+    if (Hiro.hp <= 0){
+        Hiro.hp = 0;
+        isAlive = false;
+        menuStateSelected = 1;
+    }
+}
+
 void movement_hiro() {
     if(turn > 0){
         if(y > 1)
             if(board[y-2][x-1] == 0)
                 if (IsKeyPressed(KEY_W)){
                     y -= 1;
-                    turn--;
                     board[y][x-1] = 0;
-                    update_turn++;
-                    Updateboard();
+                    give_turn_to_monster();
                 }
         if(y < mapSize)
             if(board[y][x-1] == 0)
                 if(IsKeyPressed(KEY_S)) {
                     y += 1;
-                    turn--;
                     board[y-2][x-1] = 0;
-                    update_turn++;
-                    Updateboard();
+                    give_turn_to_monster();
                 }
 }
     if(turn > 0){
@@ -256,97 +327,66 @@ void movement_hiro() {
             if(board[y-1][x] == 0)
                 if(IsKeyPressed(KEY_D)){
                     x += 1;
-                    turn--;
                     board[y-1][x-2] = 0;
-                    update_turn++;
-                    Updateboard();
+                    give_turn_to_monster();
                 }
     if(x > 1)
         if(board[y-1][x-2] == 0)
             if (IsKeyPressed(KEY_A)) {
                 x -= 1;
-                turn--;
                 board[y-1][x] = 0;
-                update_turn++;
-                Updateboard();
+                give_turn_to_monster();
             }
     }
     if(!Enemy->isAlive)
         turn = 1;
 }
-void Up_Health_Hiro(){
-    if(turn <= 0 && isAlive)
-        if((b + 1 == y && a == x) || (b - 1 == y && a == x) || (b == y && a + 1 == x) || (b == y && a - 1 == x)){
+
+void monster_turn()
+{
+    if (turn <= 0 && Enemy->isAlive){
+        if (monster_is_adjacent()) {
             Hiro.hp -= Enemy->dmg;
-            turn += 2;
-            update_turn++;
-            Updateboard();
+            give_turn_to_hiro();
         }
-    if(IsKeyPressed(KEY_Q) && Health.count != 0){
-        Hiro.hp += Health.hp_points;
-        Health.count -= 1;
-    }
-    if(Hiro.hp > 10)
-        Hiro.hp = 10;
-    if(Hiro.hp <= 0){
-        Hiro.hp = 0;
-        isAlive = false;
-        menuStateSelected = 2;
-    }
-    DrawText(TextFormat("Health: %d", Hiro.hp), 10, 10, 35, WHITE);
-}
-void Up_Health_Enemy(){
-   if(turn > 0){
-       if ((y + 1 == b && x == a) || (y - 1 == b && x == a) || ((y == b && x + 1 == a) || (y == b && x - 1 == a))) 
-            if(IsKeyPressed(KEY_F)){
-                Enemy->hp -= Hiro.dmg;
-                turn--;
-                update_turn++;
-                Updateboard();
-            }
-   }
-    if(Enemy->hp <= 0){
-        Enemy->hp = 0;
-        Enemy->isAlive = false;
-        if((a != 0  && b != 0) && Enemy->isAlive == false)
-            TraceLog(LOG_TRACE, "Monster is dead!");
-        board[b-1][a-1] = 0;
-        a = 0;
-        b = 0;
-        UpdateMapLog();
-        Updateboard();
+        else {
+            lee_from_hero(y, x);
+            move_monster_one_step();
         }
-    else
-        DrawText(TextFormat("Health: %d", Enemy->hp), 10, 40, 35, WHITE);
+    }
 }
 
 void movement(){
-    if(isAlive == true){
-        Up_Health_Hiro();
+    if (isAlive)
         movement_hiro();
-    }
-    if(Enemy->isAlive == true){
-        movement_monster();
-        Up_Health_Enemy();
-        if(update_turn >= 2){
+    if (Enemy->isAlive){
+        monster_turn();
+        if (update_turn >= 2) {
             update_turn = 0;
             UpdateMapLog();
         }
     }
-    else{
-        if(update_turn >= 1){
+    else
+        if (update_turn >= 1) {
             update_turn = 0;
             UpdateMapLog();
         }
-    }
 }
 
+
 void Char(int x_cellSize, int y_cellSize, Texture2D hiro){
-    Hiro.create(x_cellSize, y_cellSize, hiro);
-    Up_Health_Hiro();
+    if(update_turn == -1){
+        UpdateMapLog();
+        update_turn = 0;
+    }
+    if(isAlive){
+        Hiro.create(x_cellSize, y_cellSize, hiro);
+        DrawText(TextFormat("Hiro: %d", Hiro.hp), 10, 10, 35, WHITE);
+        Up_Health_Hiro();
+    }
     if(Enemy->isAlive){
         Enemy->create(x_cellSize, y_cellSize, hiro);
-        Up_Health_Enemy();
+        DrawText(TextFormat("Monster: %d", Enemy->hp), 10, 40, 35, WHITE);
     }
     else
         turn = 1;
