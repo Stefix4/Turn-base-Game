@@ -96,15 +96,14 @@ make debug
 is how GNU Make reports this forced stop.
   - It is **not** trying to build a file named 0.
 - ### **How to fix**
-> [!IMPORTANT] 
+> [!WARNING]
 > #### **Please fix the errors above before running again.**
 > #### **To view the errors/fatals/warnings, enter the logs directory and access the build_errors.log file.**
 - You can ignore the previous errors and run anyway using:
 ```
-make clean
-make run
+make debug
 ```
-> [!NOTE]
+> [!WARNING]
 > #### Ignoring previous errors may lead to **unexpected behavior**.
 > #### **It's recommended to address the errors first.**
 > #### You can continue to ignore the error, but the same error (`No rule to make target '0'`) will come up everytime you try to run the game two consecutively times, until you fix the errors.

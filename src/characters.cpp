@@ -206,8 +206,7 @@ void Update_monster_map(){
     monster_map_log << std:: endl;
 }
 
-void lee_from_hero(int hy, int hx)
-{
+void lee_from_hero(int hy, int hx){
     Update_monster_map();
 
     std::queue<std::pair<int,int>> Q;

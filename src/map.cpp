@@ -39,6 +39,7 @@ int board[7][7]={/*0*/{0 ,0 ,0 ,0 ,0 ,0 ,0},
                  /*6*/{0 ,0 ,0 ,0 ,0 ,0 ,0}
                 };
 
+
 struct Cell{
 
     int position_x, position_y;

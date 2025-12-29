@@ -486,7 +486,6 @@ else
 		exit 1; \
 	fi; \
 	if ! $(MAKE) -s guard-run; then \
-		$(MAKE) -s run-error; \
 		exit 1; \
 	fi; \
 	if ! $(MAKE) -s run-exec; then \
