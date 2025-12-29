@@ -94,10 +94,12 @@ define run_blocked
 	@echo "Last run failed and build/ already exists."
 	@echo "Please fix the errors above before running again."
 	@echo
-	@echo "To clear the build and try again, run:"
-	@echo "  👉  make clean && make run"
+	@echo "To view the errors/fatals/warnings, enter the logs directory and access the build_errors.log file."
 	@echo
-	@echo "Alternatively, to ignore previous errors and run anyway, delete the file:"
+	@echo "To clear the build and try again, run:"
+	@echo "  👉  make debug"
+	@echo
+	@echo "Alternatively(not recommended), to ignore previous errors and run anyway, delete the file:"
 	@echo "  👉  rm -f $(RUN_GUARD) && make run"
 	@echo
 	@echo "Note - Ignoring previous errors may lead to unexpected behavior. It's recommended to address the errors first."
@@ -600,6 +602,9 @@ else \
 	$(MAKE) -s clean-error; \
 	exit 1; \
 fi
+
+.PHONY: debug
+debug: clean run
 
 help:
 	@$(MAKE) -s help-banner

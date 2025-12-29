@@ -44,9 +44,6 @@ pacman -S --needed base-devel mingw-w64-x86_64-toolchain mingw-w64-x86_64-raylib
 ```bash
 # Build for your current platform (auto-detected)
 make
-
-# Force Windows build from any shell if needed
-make WINDOWS=1
 ```
 
 **Run**
@@ -62,6 +59,12 @@ make clean
 **Help**
 ```bash
 make help
+```
+
+**Debug**
+```bash
+# Everytime you make modifications to the code, insted of running make clean && make run, simply run
+make debug
 ```
 
 > [!NOTE]
