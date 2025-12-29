@@ -63,7 +63,7 @@ make help
 
 **Debug**
 ```bash
-# Everytime you make modifications to the code, insted of running make clean && make run, simply run
+# To test the code, insted of running: make clean && make run , simply run
 make debug
 ```
 
