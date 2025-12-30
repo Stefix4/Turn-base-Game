@@ -102,8 +102,10 @@ struct Hero :Character {
     }
     
     void create(float x_cellSize, float y_cellSize, Texture2D hiro){
-        DrawTexture(x_cellSize, y_cellSize, hiro);
-        Update_Texture();
+        if(menuStateSelected == 1){
+            DrawTexture(x_cellSize, y_cellSize, hiro);
+            Update_Texture();
+        }
     }
     //attack//
 
@@ -141,17 +143,16 @@ struct Monster :Character {
     }
 
     void create(float x_cellSize, float y_cellSize, Texture2D hiro){
+        if(menuStateSelected == 1){
             currentPosition(x_cellSize, y_cellSize, team);
             DrawTexture(x_cellSize, y_cellSize, hiro);
             Update_Texture();
+        }
     }
     //texture//
 
     //////////
 
-    //attack//
-
-    /////////
 
 };
 
@@ -374,10 +375,6 @@ void movement(){
 
 
 void Char(int x_cellSize, int y_cellSize, Texture2D hiro){
-    if(update_turn == -1){
-        UpdateMapLog();
-        update_turn = 0;
-    }
     if(isAlive){
         Hiro.create(x_cellSize, y_cellSize, hiro);
         DrawText(TextFormat("Hiro: %d", Hiro.hp), 10, 10, 35, WHITE);

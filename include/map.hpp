@@ -4,7 +4,7 @@
 #include <map>
 #include <fstream>
 
-void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2 , Texture2D bush_1, Texture2D bush_2, Texture2D bush_3);
+void InitiateBoard(Texture2D grass, Texture2D stone_1, Texture2D stone_2 , Texture2D stone_3, Texture2D bush_1, Texture2D bush_2, Texture2D bush_3);
 void Updateboard();
 void UpdateMapLog();
 struct Cell;

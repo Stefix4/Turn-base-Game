@@ -1,0 +1,99 @@
+INFO: Initializing raylib 4.6-dev
+INFO: Supported raylib modules:
+INFO:     > rcore:..... loaded (mandatory)
+INFO:     > rlgl:...... loaded (mandatory)
+INFO:     > rshapes:... loaded (optional)
+INFO:     > rtextures:. loaded (optional)
+INFO:     > rtext:..... loaded (optional)
+INFO:     > rmodels:... loaded (optional)
+INFO:     > raudio:.... loaded (optional)
+INFO: DISPLAY: Device initialized successfully
+INFO:     > Display size: 2560 x 1440
+INFO:     > Screen size:  1280 x 780
+INFO:     > Render size:  1280 x 780
+INFO:     > Viewport offsets: 0, 0
+INFO: GLAD: OpenGL extensions loaded successfully
+INFO: GL: Supported extensions count: 403
+INFO: GL: OpenGL device information:
+INFO:     > Vendor:   NVIDIA Corporation
+INFO:     > Renderer: NVIDIA GeForce RTX 3060/PCIe/SSE2
+INFO:     > Version:  3.3.0 NVIDIA 591.44
+INFO:     > GLSL:     3.30 NVIDIA via Cg compiler
+INFO: GL: VAO extension detected, VAO functions loaded successfully
+INFO: GL: NPOT textures extension detected, full NPOT textures supported
+INFO: GL: DXT compressed textures supported
+INFO: GL: ETC2/EAC compressed textures supported
+INFO: TEXTURE: [ID 1] Texture loaded successfully (1x1 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 1] Default texture loaded successfully
+INFO: SHADER: [ID 1] Vertex shader compiled successfully
+INFO: SHADER: [ID 2] Fragment shader compiled successfully
+INFO: SHADER: [ID 3] Program shader loaded successfully
+INFO: SHADER: [ID 3] Default shader loaded successfully
+INFO: RLGL: Render batch vertex buffers loaded successfully in RAM (CPU)
+INFO: RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)
+INFO: RLGL: Default OpenGL state initialized successfully
+INFO: TEXTURE: [ID 2] Texture loaded successfully (128x128 | GRAY_ALPHA | 1 mipmaps)
+INFO: FONT: Default font loaded successfully (224 glyphs)
+INFO: TIMER: Target time per frame: 33.333 milliseconds
+INFO: FILEIO: [./resources/hiro.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1920x1080 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 3] Texture loaded successfully (1920x1080 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/background2.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (1280x780 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 4] Texture loaded successfully (1280x780 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/grass.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (2000x2000 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 5] Texture loaded successfully (2000x2000 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/stone_v1.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 6] Texture loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/stone_v2.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 7] Texture loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/stone_v3.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 8] Texture loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/bush_v1.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 9] Texture loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/bush_v2.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 10] Texture loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: FILEIO: [./resources/bush_v3.png] File loaded successfully
+INFO: IMAGE: Data loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 11] Texture loaded successfully (555x579 | R8G8B8A8 | 1 mipmaps)
+TRACE: 1
+TRACE: 
+TRACE: 5
+TRACE: 4
+TRACE: 
+TRACE: 1
+TRACE: 0
+TRACE: 
+TRACE: 5
+TRACE: 3
+TRACE: 
+TRACE: 0
+TRACE: 0
+TRACE: 
+TRACE: 3
+TRACE: 6
+TRACE: 
+TRACE: 2
+TRACE: 3
+TRACE: 
+TRACE: 6
+TRACE: Monster is dead!
+INFO: TEXTURE: [ID 3] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 4] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 5] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 6] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 7] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 8] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 9] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 10] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 11] Unloaded texture data from VRAM (GPU)
+INFO: TEXTURE: [ID 2] Unloaded texture data from VRAM (GPU)
+INFO: SHADER: [ID 3] Default shader unloaded successfully
+INFO: TEXTURE: [ID 1] Default texture unloaded successfully
+INFO: Window closed successfully
